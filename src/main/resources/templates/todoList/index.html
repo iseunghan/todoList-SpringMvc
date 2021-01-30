@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+    <title>🗒To-do List</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="todo_title">
+        <h1>✏️ To-do List</h1>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="main-todo-input-wrap">
+                <div class="main-todo-input fl-wrap">
+                    <form name="todoForm" action="/todoList/new" method="post" onsubmit="return validateForm()">
+                        <div class="main-todo-input-item">
+                            <input style="font-size:15px; font-family:Sunflower" type="text" id="title" name="title"
+                                   placeholder="오늘의 할일을 적어보세요.. ✍️"></div>
+                        <button class="add-items main-search-button" type="submit">ADD</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- TODO todoList, todoItem 묶어서 div로 나누고, css에서 함께 디자인
+    만약 todoList 객체가 없을 때 -> 타임리프 문법으로 없을 때 빈칸에"없음" 이런 처리하기 -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="main-todo-input-wrap2">
+                <div class="main-todo-input fl-wrap todo-listing">
+                    <div class="todo-list" th:each="todoList : ${todoLists}">
+                        <div class="todo-item" th:if="${todoList.status.toString().equals('NEVER')}">
+                            <span style="font-family: Sunflower" th:text="${todoList.title}"></span>
+                            <div class="check-item">
+                                <a style="font-size: 20px" href=""
+                                   th:href="@{/todoList/done/{id}(id=${todoList.id})}">✅</a>
+                                <a style="font-size: 20px" href=""
+                                   th:href="@{/todoList/delete/{id}(id=${todoList.id})}">🗑</a>
+                            </div>
+                        </div>
+
+                        <div class="todo-item2" th:if="${todoList.status.toString().equals('DONE')}">
+                            <s><span style="font-family: Sunflower" class="done-item"
+                                     th:text="${todoList.title}"></span></s>
+                            <div class="check-item">
+                                <a style="font-size: 20px" href="" th:href="@{/todoList/never/{id}(id=${todoList.id})}">↪️</a>
+                                <a style="font-size: 20px" href=""
+                                   th:href="@{/todoList/delete/{id}(id=${todoList.id})}">🗑</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="empty-todo-list" th:if="${todoLists.size()==0}">
+                        <span style="font-family: Sunflower">할일이 없어요...😥</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- body 태그가 끝나는 지점에 주로 위치 시킨다. -->
+<script src="/js/todoScript.js"></script>
+</body>
+
+</html>

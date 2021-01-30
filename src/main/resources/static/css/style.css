@@ -1,0 +1,178 @@
+.main-todo-input {
+    background: #fff;
+    padding: 0 120px 0 0;
+    border-radius: 1px;
+    margin-top: 0px; /*200px*/
+    box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.9)
+}
+
+.fl-wrap {
+    float: left; /* 본문 왼쪽에 떠있어라는 뜻 */
+    width: 100%;
+    position: relative
+}
+
+.main-todo-input-item {
+    float: left;
+    width: 100%;
+    box-sizing: border-box;
+    border-right: 1px solid #eee;
+    height: 52px;
+    position: relative
+}
+
+.main-todo-input-item input:first-child {
+    border-radius: 100%
+}
+
+.main-todo-input-item input {
+    float: left;
+    border: none;
+    width: 100%;
+    height: 50px;
+    padding-left: 20px
+}
+
+.main-search-button {
+    /*background: #4DB7FE*/
+    background: #6DBA57;
+}
+
+.main-search-button {
+    position: absolute;
+    right: 0px;
+    height: 52px;
+    width: 120px;
+    color: #fff;
+    top: 0;
+    border: none;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    box-shadow: -2px 0px 0px 0px rgba(0, 0, 0, 0.7);
+    cursor: pointer
+}
+
+.main-todo-input-wrap {
+    max-width: 520px;
+    margin: 20px auto;
+    position: relative;
+}
+
+.main-todo-input-wrap2 {
+    max-width: 630px;
+    margin: 30px auto;
+    padding-left: 100px;
+    position: relative;
+}
+
+:focus {
+    outline: 0
+}
+
+@media only screen and (max-width: 768px) {
+    .main-todo-input {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 14px 20px 10px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 0px 10px rgba(255, 255, 255, 0.0)
+    }
+
+    .main-todo-input-item {
+        width: 100%;
+        border: 1px solid #eee;
+        height: 50px;
+        border: none;
+        margin-bottom: 10px
+    }
+
+    .main-todo-input-item input {
+        border-radius: 6px !important;
+        background: #fff
+    }
+
+    .main-search-button {
+        position: relative;
+        float: left;
+        width: 100%;
+        border-radius: 6px
+    }
+}
+
+.remove {
+    float: right;
+    color: #757575 !important;
+    font-size: 14px
+}
+
+ul {
+    padding: 0;
+    text-align: left;
+    list-style: none
+}
+
+.todo-text {
+    color: #757575;
+    margin-left: 10px
+}
+
+/* 리스트 목록 창 */
+.todo-listing {
+    padding: 0px 20px 0px 0;
+    margin-top: 54px !important
+}
+
+/* todo본문 제목 */
+.todo_title {
+    font-family: 'Sunflower', sans-serif;
+    font-size: 20px;
+    color: dimgrey;
+    text-align: center;
+    margin-left: 60px;
+    margin-top: 100px;
+}
+
+.empty-todo-list {
+    position: relative;
+    width: 98%;
+    padding: 8px;
+    margin: 8px 7px;
+    border-radius: 3px;
+    text-align: center;
+    background: #FAFAFA;
+    font-family: 'Sunflower', sans-serif;
+    font-size: 18px;
+    color: #000;
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1)
+}
+
+.todo-item {
+    position: relative;
+    width: 98%;
+    padding: 8px;
+    margin: 8px 7px;
+    border-radius: 3px;
+    background: #FAFAFA;
+    font-family: 'Sunflower', sans-serif;
+    font-size: 16px;
+    color: #000;
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1)
+}
+
+.todo-item2 {
+    position: relative;
+    width: 98%;
+    padding: 8px;
+    margin: 8px 7px;
+    border-radius: 3px;
+    background: #DFDDDD;
+    color: dimgrey;
+    font-family: 'Sunflower', sans-serif;
+    font-size: 16px;
+
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.3)
+}
+
+.check-item {
+    text-align: right;
+    margin-top: -25px;
+}
