@@ -29,9 +29,17 @@ values (null, '2021-01-28', 'NEVER', '🗑 를 누르면 할일이 삭제됩니�
 
 
 
-### 결과 화면
+ 실행 화면
+---
+#### 메인 화면 (홈 화면)
+![homeImg](src/main/resources/static/img/homeImage.png)
 
-|설명 | 실행 화면|
-|--|--|
-|메인 화면|![homeImg](img/homeImage.png)|
-|alert 발생|![alertImg](img/alertImage.png)|
+설명
+- ✅ 버튼을 클릭하면, 배경이 흐릿 해지고 글씨에 취소선이 생기면서 할일이 완료처리가 됩니다.
+- 🗑 버튼을 클릭하면, 할일이 삭제가 됩니다.
+- "오늘의 할일을 적어보세요✍️" 에 할일을 적고 ADD 버튼을 눌러주면 할일이 추가됩니다.
+- 빈칸을 입력하면 아래와 같이 alert를 발생시키도록 했습니다.
+---
+
+#### alert 발생 화면
+![alertImg](src/main/resources/static/img/alertImage.png)
