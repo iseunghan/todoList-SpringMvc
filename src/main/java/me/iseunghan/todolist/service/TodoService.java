@@ -20,17 +20,17 @@ public class TodoService {
     /**
      * by.승한 - 할일을 추가해주는 메소드
      */
-    public Long addTodo(TodoItem todoItem) {
+    public TodoItem addTodo(TodoItem todoItem) {
         try {
             if (todoItem.getTitle() == "") {
                 // 공백일 때
                 throw new IllegalStateException("공백을 입력할 수 없습니다.");
             }
-            return todoRepository.save(todoItem).getId();
+            return todoRepository.save(todoItem);
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
-        return todoItem.getId();
+        return todoItem;
     }
 
     /**

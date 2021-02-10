@@ -35,11 +35,10 @@ class TodoServiceTest {
         todoItem.setStatus(TodoStatus.NEVER);
 
         // when
-        Long id = todoService.addTodo(todoItem);
+        TodoItem todoItem2 = todoService.addTodo(todoItem);
 
         // then
-        TodoItem todoItem1 = todoRepository.findById(id).get();
-        assertEquals(todoItem1.getTitle(), todoItem.getTitle());
+        assertEquals(todoItem2.getTitle(), todoItem.getTitle());
         // assertTrue(todoItem==todoItem1);
         // 객체 비교하면 안되나? -> jpa는 동일 보장을 한다고 들얼ㅆ는
     }

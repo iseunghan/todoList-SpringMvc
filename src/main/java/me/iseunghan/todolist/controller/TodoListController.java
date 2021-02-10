@@ -1,17 +1,19 @@
 package me.iseunghan.todolist.controller;
 
-import me.iseunghan.todolist.model.TodoItem;
-import me.iseunghan.todolist.model.TodoListForm;
+import me.iseunghan.todolist.model.*;
 import me.iseunghan.todolist.service.TodoService;
 import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.hateoas.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping(value = "/todoList")
+import java.net.URI;
+import java.util.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+@RestController
+@RequestMapping(value = "/todoLists", produces = MediaTypes.HAL_JSON_VALUE)   // TODO rest API를 위해 resource를 복수형으로 변경
 public class TodoListController {
 
     // 필드로 DI(의존성 주입)를 하게 되면 final로 선언이 안된다. (final로 하고 싶다면, 생성자 DI 사용)
@@ -24,62 +26,99 @@ public class TodoListController {
     }
 
     /**
-     * by.승한 - "/todoList/new"에 대한 GET방식 메소드입니다.
-     * @return 할일 생성 폼으로 이동합니다.
+     * by.승한 - URI에 포함된 id로 하나의 할일을 조회하는 컨트롤러 입니다.
+     * @param id
+     * @return 200 상태코드와, HTTP body부분에 객체를 json형태로 담아서 응답을 보냅니다. (link정보에는 자신의 링크와, 수정, 삭제로 가는 링크가 담겨있습니다.)
      */
-    @GetMapping("/new")
-    public String createForm() {
+    @GetMapping(value = "/{id}")
+    public ResponseEntity selectOne(@PathVariable Long id) {
+        TodoItem item = todoService.findOne(id);
+        TodoResource todoResource = new TodoResource(item);
+        todoResource.add(linkTo(TodoListController.class).slash(item.getId()).withRel("put"));
+        todoResource.add(linkTo(TodoListController.class).slash(item.getId()).withRel("delete"));
 
-        return "todoList/createTodoListForm";
+        return ResponseEntity.ok(todoResource);
     }
 
     /**
-     * by.승한 - 폼에서 받은 todoListForm 객체를 받아서
-     * @param form 을 todoItem으로 mapping시켜서 service로 넘겨서 추가합니다.
-     * @return 다시 홈화면으로 이동합니다.
+     * by.승한 - 모든 할일을 조회하는 컨트롤러입니다.
+     *          모든 할일의 _links에는 self링크와 수정, 삭제 링크를 담아서 응답하고 있습니다.
+     * @return 200 응답을 보내고, CollectionModel로 감싼 TodoResourceList를 보냅니다.
      */
-    @PostMapping(value = "/new")
-    public String create(TodoListForm form) {
-        if (form != null) {
-            TodoItem map = modelMapper.map(form, TodoItem.class); // modelMapper를 사용하면 코드를 간결하게 줄일 수 있음!
-            todoService.addTodo(map);
+    @GetMapping
+    public ResponseEntity selectAll() {
+        List<TodoItem> todoItemList = todoService.getTodoItemList();
+        // TODO 각각의 링크 정보들 넣기. (질문): json 데이터를 보면, todoREsourceList라고 나오는데 괜찮은가.. (TodoItemList가 맞지 않은가?)
+
+        List<TodoResource> resourceList = new ArrayList<>();
+        TodoResource todoResource;
+        for (TodoItem todoItem : todoItemList) {
+            todoResource = new TodoResource(todoItem);
+            todoResource.add(linkTo(TodoListController.class).slash(todoItem.getId()).withRel("put"));
+            todoResource.add(linkTo(TodoListController.class).slash(todoItem.getId()).withRel("delete"));
+            resourceList.add(todoResource);
         }
-        return "redirect:/";
+        CollectionModel<TodoResource> collectionModel = CollectionModel.of(resourceList);
+        // list형태로 던지면, 한번 더 감싸지지 않고 나오는 반면, todoresource를 던지면 감싸지게 나온다.
+        return ResponseEntity.ok(collectionModel);
     }
 
     /**
-     * by.승한 - id에 해당하는 status를 DONE으로 변경합니다.
-     * @param id
-     * @return 홈화면으로 이동합니다.
+     * by.승한 - 할일을 추가하는 POST 요청이 들어오면 service로 보내서 할일을 추가하도록 합니다.
+     *          @RequestBody를 이용해서, HTTP 요청 body를 자바 객체로 받을 수 있습니다.
+     *
+     * @param todoitemDto json형태로 넘어온 http 바디 부분에 있는 item을 받아서 db에 추가해줍니다.
+     * @return 201 응답을 URI와 함께 보내고, 바디에
      */
-    @GetMapping(value = "/done/{id}")
-    public String updateDoneStatus(@PathVariable("id") Long id) {
-        todoService.updateStatus(id);
+    @PostMapping    // TODO Errors나 BindingResult 추가!
+    public ResponseEntity createTodo(@RequestBody TodoitemDto todoitemDto) {
+        // @ModelAttribute(객체일때)와 @RequestParam(String,int등)은 생략이 가능하다.
+        // 스프링은 객체이면 @ModelAttribute가 생략됐다고, 단순타입(String,int)면 @RequestParam이 생략됐다고 판단한다.
+        TodoItem item = modelMapper.map(todoitemDto, TodoItem.class);
+        todoService.addTodo(item);
 
-        return "redirect:/";
+        URI uri = linkTo(TodoListController.class).slash(item.getId()).toUri();
+        TodoResource todoResource = new TodoResource(item);
+
+        return ResponseEntity.created(uri).body(todoResource);
     }
 
     /**
-     * by.승한 - id에 해당하는 status를 NEVER로 변경합니다.
+     * by.승한 - id에 해당하는 status를 변경합니다. (DONE -> NEVER, NEVER -> DONE)
+     *
      * @param id
      * @return 홈화면으로 이동합니다.
      */
-    @GetMapping(value = "/never/{id}")
-    public String updateNeverStatus(@PathVariable("id") Long id) {
+    @PutMapping(value = "/{id}")
+    public ResponseEntity updateStatus(@PathVariable("id") Long id) {
         todoService.updateStatus(id);
+        TodoItem one = todoService.findOne(id);
 
-        return "redirect:/";
+        TodoResource resource = new TodoResource(one);
+        return ResponseEntity.ok(resource);
     }
 
     /**
      * by.승한 - 해당하는 id를 삭제합니다.
+     *
      * @param id
      * @return 홈화면으로 이동합니다.
      */
-    @GetMapping(value = "/delete/{id}")
-    public String delete(@PathVariable("id") Long id) {
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity deleteTodo(@PathVariable("id") Long id) {
         todoService.deleteTodoItem(id);
 
-        return "redirect:/";
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * by.승한 - service에서 할일을 조회할 때, 없는 할일을 조회할 경우 발생하는 예외를 잡는 핸들러입니다.
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity exceptionHandler(Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.notFound().build();
     }
 }

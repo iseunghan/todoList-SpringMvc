@@ -18,7 +18,7 @@
         <div class="col-md-12">
             <div class="main-todo-input-wrap">
                 <div class="main-todo-input fl-wrap">
-                    <form name="todoForm" action="/todoList/new" method="post" onsubmit="return validateForm()">
+                    <form name="todoForm" action="/todoList" method="post" onsubmit="return validateForm()">
                         <div class="main-todo-input-item">
                             <input style="font-size:15px; font-family:Sunflower" type="text" id="title" name="title"
                                    placeholder="오늘의 할일을 적어보세요.. ✍️"></div>
@@ -38,6 +38,14 @@
                         <div class="todo-item" th:if="${todoList.status.toString().equals('NEVER')}">
                             <span style="font-family: Sunflower" th:text="${todoList.title}"></span>
                             <div class="check-item">
+                                <form method="post" th:action="@{/todoLists/{id}(id=${todoList.id})}" >
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <button type="submit">✅</button>
+                                </form>
+                                <form method="post" th:action="@{/todoLists/{id}(id=${todoList.id})}" >
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit">🗑</button>
+                                </form>
                                 <a style="font-size: 20px" href=""
                                    th:href="@{/todoList/done/{id}(id=${todoList.id})}">✅</a>
                                 <a style="font-size: 20px" href=""
