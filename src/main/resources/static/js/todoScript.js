@@ -50,10 +50,11 @@ $(function () {
     }
 
     /**
-     * by.승한 - 홈 화면에 할일목록을 뿌려주기 위해 GET 방식으로 ajax 비동기 통신을 합니다.
+     * by.승한 - 홈 화면에 할일목록을 뿌려주기 위해 GET 방식으로 ajax 통신을 합니다.
      *
      *  처음 홈 화면에 접속했을 때, ajax통신으로 서버에서 받은 응답 본문에 있는 json형태의
      *  할일 리스트를 for문으로 돌면서 Mustache 템플릿 엔진에게 넘겨줍니다.
+     *
      */
     $.ajax({
         type: 'GET', // default 값이 GET
@@ -65,6 +66,37 @@ $(function () {
             for (var i = 0; i < todoLists.length; i++) {
                 addTodo(todoLists[i]);  // 함수로 넘기면 알아서 템플릿이 처리해줌.
             }
+        }
+    });
+
+    /**
+     *  by.승한 - 할일을 추가하기 위해 버튼을 클릭하면, POST 방식으로 ajax 통신을 합니다.
+     *
+     *  입력받은 할일을 json 형태로 변환하여 서버로 보냅니다.
+     *  서버에서는 application/json 형태로 응답이 오게 됩니다.
+     *  응답 본문에 실린 todoItem 객체를 Mustache 템플릿에게 넘겨줍니다.
+     *
+     */
+    $('#add-btn').click(function () {
+
+        if (validateForm()) {
+            $.ajax({
+                url: 'http://localhost:8080/todoLists',
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    title: $('#input-title').val()
+                }),
+
+                success: function (result) {
+                    console.log('\"' + result.title + '\" 이(가) 추가 되었습니다.');
+                    addTodo(result);
+                },
+                fail: function (result) {
+                    alert('통신 실패');
+                }
+            });
         }
     });
 });
