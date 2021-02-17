@@ -17,12 +17,10 @@ public class TodoListHomeController {
     private TodoService todoService;
 
     /**
-     * by.승한 - localhost:8080/ 으로 접근 했을 때 출력되는 홈 화면입니다. ("static/index.html" 이 있어도 우선적으로 출력됨)
+     * by.승한 - localhost:8080 으로 접근 했을 때 출력되는 홈 화면입니다. ("static/index.html" 이 있어도 우선적으로 출력됨)
      */
     @GetMapping(value = "/")
-    public String home(Model model) {
-        List<TodoItem> list = todoService.getTodoItemList();
-        model.addAttribute("todoLists", list);
+    public String home() {
 
         return "/todoList/index";
     }
