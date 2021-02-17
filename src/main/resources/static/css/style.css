@@ -40,7 +40,7 @@
 
 .main-search-button {
     position: absolute;
-    right: 0px;
+    right: -121px;
     height: 52px;
     width: 120px;
     color: #fff;
@@ -53,7 +53,7 @@
 }
 
 .main-todo-input-wrap {
-    max-width: 520px;
+    max-width: 500px;
     margin: 20px auto;
     position: relative;
 }
@@ -175,4 +175,61 @@ ul {
 .check-item {
     text-align: right;
     margin-top: -25px;
+}
+
+/* checked 클래스를 부여하게 되면, 할일이 완료 됐음을 시각적으로 표현해줍니다. */
+.checked {
+    background: #888;
+    color: #fff;
+    text-decoration: line-through;  /* 취소 선 */
+}
+
+/* Style the list items */
+ul li {
+    cursor: pointer;
+    position: relative;
+    width: 602px;
+    padding: 12px 8px 12px 40px;
+    background: #eee;
+    font-size: 18px;
+    transition: 0.2s;
+
+    /* make the list items unselectable */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* 마우스를 올려놓으면 배경이 검게 변하게 됩니다. */
+ul li:hover {
+    background: #ddd;
+}
+
+/* 클릭을 하게 되면, 체크 표시가 나타나게 됩니다. */
+ul li.checked::before {
+    content: '';
+    position: absolute;
+    border-color: #fff;
+    border-style: solid;
+    border-width: 0 2px 2px 0;
+    top: 10px;
+    left: 16px;
+    transform: rotate(45deg);
+    height: 15px;
+    width: 7px;
+}
+
+/* 삭제 버튼 스타일 */
+.delete {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 12px 16px 12px 16px;
+}
+
+/* 삭제 버튼 위에 마우스 올리면, 빨간색으로 변하게 됩니다. */
+.delete:hover {
+    background-color: #f44336;
+    color: white;
 }
