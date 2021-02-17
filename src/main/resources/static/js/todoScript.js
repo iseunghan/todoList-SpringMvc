@@ -110,10 +110,8 @@ $(function () {
      *
      *  수정이 정상적으로 이루어져서, 서버에서 200 응답이 오게 되면 해당 태그에 checked 클래스를 부여해줍니다.
      *  (checked 태그는 해당 할일이 완료되었다는 시각적으로 표시를 하게 끔 디자인 되었습니다.)
-     * /
+     */
 
-     /* ajax-todo-lists의 li태그를 클릭하면 checked 클래스 속성을 추가한다. */
-    // 어쩔수 없이 li로 선택했지만, 추후에 다른 방법 찾아보기.
     $todos.delegate('li', 'click', function (e) {
         var $li = $(this).closest('li');
 
@@ -134,6 +132,32 @@ $(function () {
                 },
             });
         }
+    });
+
+    /**
+     *  by.승한 - 삭제 버튼을 클릭하게 되면, span 태그안에 해당 할일의 id값이 들어있는 data-id가 있다.
+     *
+     *  클릭을 하게 되면 해당 li태그안에 있는 data-id값을 url에 붙여서 PATCH 방식으로 ajax가 통신을 하게됩니다.
+     *  서버로 부터 200 응답을 받고, 해당 li태그를 .remove를 이용해 삭제해줍니다.
+     */
+    $todos.delegate('.delete', 'click', function () {
+        console.log('id : ' + $(this).attr('data-id') + ' 가 삭제됩니다.');
+        var $li = $(this).closest('li');
+
+        $.ajax({
+            url: 'http://localhost:8080/todoLists/' + $(this).attr('data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
+            type: 'DELETE',
+
+            success: function (result) {
+                // alert('통신 성공');
+                $li.fadeOut(300, function (){
+                    $li.remove();
+                });
+            },
+            error: function (result) {
+                // alert('통신 실패');
+            },
+        });
     });
 });
 
