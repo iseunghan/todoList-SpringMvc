@@ -27,6 +27,7 @@ public class TodoListController {
 
     /**
      * by.승한 - URI에 포함된 id로 하나의 할일을 조회하는 컨트롤러 입니다.
+     *
      * @param id
      * @return 200 상태코드와, HTTP body부분에 객체를 json형태로 담아서 응답을 보냅니다. (link정보에는 자신의 링크와, 수정, 삭제로 가는 링크가 담겨있습니다.)
      */
@@ -42,7 +43,8 @@ public class TodoListController {
 
     /**
      * by.승한 - 모든 할일을 조회하는 컨트롤러입니다.
-     *          모든 할일의 _links에는 self링크와 수정, 삭제 링크를 담아서 응답하고 있습니다.
+     * 모든 할일의 _links에는 self링크와 수정(put), 삭제(delete) 링크를 담아서 응답하고 있습니다.
+     *
      * @return 200 응답을 보내고, CollectionModel로 감싼 TodoResourceList를 보냅니다.
      */
     @GetMapping
@@ -65,15 +67,17 @@ public class TodoListController {
 
     /**
      * by.승한 - 할일을 추가하는 POST 요청이 들어오면 service로 보내서 할일을 추가하도록 합니다.
-     *          @RequestBody를 이용해서, HTTP 요청 body를 자바 객체로 받을 수 있습니다.
      *
-     * @param todoitemDto json형태로 넘어온 http 바디 부분에 있는 item을 받아서 db에 추가해줍니다.
-     * @return 201 응답을 URI와 함께 보내고, 바디에
+     * @param todoitemDto json형태로 넘어온 requestbody에 title을 jackson라이브러리가 todoitemDto의
+     *                       setTitle을 호출해 매핑을 시켜준다.(그래서 dto는 java bean규약을 준수해야한다.)
+     * @return 201 응답을 URI와 보내고, 본문에 저장된 객체를 hal+json으로 보냅니다.
+     * @RequestBody를 이용해서, HTTP 요청 body를 자바 객체로 받을 수 있습니다.
      */
-    @PostMapping    // TODO Errors나 BindingResult 추가!
+    @PostMapping
     public ResponseEntity createTodo(@RequestBody TodoitemDto todoitemDto) {
         // @ModelAttribute(객체일때)와 @RequestParam(String,int등)은 생략이 가능하다.
         // 스프링은 객체이면 @ModelAttribute가 생략됐다고, 단순타입(String,int)면 @RequestParam이 생략됐다고 판단한다.
+        System.out.println(todoitemDto.getTitle());
         TodoItem item = modelMapper.map(todoitemDto, TodoItem.class);
         todoService.addTodo(item);
 
@@ -84,12 +88,12 @@ public class TodoListController {
     }
 
     /**
-     * by.승한 - id에 해당하는 status를 변경합니다. (DONE -> NEVER, NEVER -> DONE)
-     *
-     * @param id
-     * @return 홈화면으로 이동합니다.
+     * by.승한 - 해당하는 id의 할일의 상태(status)를 변경합니다.
+     *                          (DONE -> NEVER, NEVER -> DONE)
+     * @param id 변경하려는 id를 받습니다.
+     * @return 200 응답과 본문에 변경된 내용을 담아 보냅니다.
      */
-    @PutMapping(value = "/{id}")
+    @PatchMapping(value = "/{id}")
     public ResponseEntity updateStatus(@PathVariable("id") Long id) {
         todoService.updateStatus(id);
         TodoItem one = todoService.findOne(id);
@@ -99,10 +103,10 @@ public class TodoListController {
     }
 
     /**
-     * by.승한 - 해당하는 id를 삭제합니다.
+     * by.승한 - 해당하는 id의 할일을 삭제합니다.
      *
-     * @param id
-     * @return 홈화면으로 이동합니다.
+     * @param id 삭제하려는 id를 받습니다.
+     * @return 200 응답을 보냅니다.
      */
     @DeleteMapping(value = "/{id}")
     public ResponseEntity deleteTodo(@PathVariable("id") Long id) {
@@ -113,8 +117,9 @@ public class TodoListController {
 
     /**
      * by.승한 - service에서 할일을 조회할 때, 없는 할일을 조회할 경우 발생하는 예외를 잡는 핸들러입니다.
+     *
      * @param e
-     * @return
+     * @return 예외가 발생하면, 404 NotFound 응답을 보냅니다.
      */
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity exceptionHandler(Exception e) {
