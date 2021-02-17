@@ -13,7 +13,7 @@ import java.util.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
-@RequestMapping(value = "/todoLists", produces = MediaTypes.HAL_JSON_VALUE)   // TODO rest API를 위해 resource를 복수형으로 변경
+@RequestMapping(value = "/todoLists", produces = MediaTypes.HAL_JSON_VALUE)
 public class TodoListController {
 
     // 필드로 DI(의존성 주입)를 하게 되면 final로 선언이 안된다. (final로 하고 싶다면, 생성자 DI 사용)
@@ -77,7 +77,6 @@ public class TodoListController {
     public ResponseEntity createTodo(@RequestBody TodoitemDto todoitemDto) {
         // @ModelAttribute(객체일때)와 @RequestParam(String,int등)은 생략이 가능하다.
         // 스프링은 객체이면 @ModelAttribute가 생략됐다고, 단순타입(String,int)면 @RequestParam이 생략됐다고 판단한다.
-        System.out.println(todoitemDto.getTitle());
         TodoItem item = modelMapper.map(todoitemDto, TodoItem.class);
         todoService.addTodo(item);
 

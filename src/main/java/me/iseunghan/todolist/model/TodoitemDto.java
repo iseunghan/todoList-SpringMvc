@@ -19,8 +19,7 @@ public class TodoitemDto  {
         return date;
     }
 
-    public void setDate(String date) {
-        String[] split = date.split("-");
-        this.date = LocalDate.of(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 }
