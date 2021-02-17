@@ -99,6 +99,42 @@ $(function () {
             });
         }
     });
+
+    /**
+     *  by.승한 - 해당 할일을 클릭하게 되면, 현재 상태의 반대 상태로 변경합니다.
+     *
+     *  ul.li태그안에는 각 할일의 id값이 들어있는 data-id가 있습니다.
+     *  클릭을 하게 되면 해당 li태그안에 있는 data-id값을 url에 붙여서 PATCH 방식으로 ajax가 통신을 하게됩니다.
+     *
+     *  삭제 버튼과 이벤트가 겹치게 되어, 중복 이벤트 실행을 방지하기 위해서 이벤트 발생요소가 수정하려는 것이 맞는지 체크를 하게 됩니다.
+     *
+     *  수정이 정상적으로 이루어져서, 서버에서 200 응답이 오게 되면 해당 태그에 checked 클래스를 부여해줍니다.
+     *  (checked 태그는 해당 할일이 완료되었다는 시각적으로 표시를 하게 끔 디자인 되었습니다.)
+     * /
+
+     /* ajax-todo-lists의 li태그를 클릭하면 checked 클래스 속성을 추가한다. */
+    // 어쩔수 없이 li로 선택했지만, 추후에 다른 방법 찾아보기.
+    $todos.delegate('li', 'click', function (e) {
+        var $li = $(this).closest('li');
+
+        /* 삭제버튼 이벤트 발생요소가 현재 요소인지 체크 */
+        if(e.target == $(this).get(0)) {
+
+            $.ajax({
+                url: 'http://localhost:8080/todoLists/' + $(this).attr('li-data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
+                type: 'PATCH',
+
+                success: function (result) {
+                    var stat = result.status == 'NEVER' ? 'NEVER' : 'DONE';
+                    console.log(result.title + '의 할일상태가 ' + stat + '으로 변경되었습니다.');
+                    $li.toggleClass('checked');
+                },
+                error: function (result) {
+                    // alert('통신 실패');
+                },
+            });
+        }
+    });
 });
 
 
