@@ -60,6 +60,7 @@ $(function () {
         type: 'GET', // default 값이 GET
         url: 'http://localhost:8080/todoLists',
 
+        //서버의 응답데이터가 클라이언트에게 도착하면 자동으로 실행되는함수(콜백)
         success: function (result) {	// 꼭 result로 설정하는건 아니고, 내가 맘대로 정해줘도 된다!!
             var todoLists = result._embedded.todoResourceList;
 
@@ -89,6 +90,7 @@ $(function () {
                     title: $('#input-title').val()
                 }),
 
+                //서버의 응답데이터가 클라이언트에게 도착하면 자동으로 실행되는함수(콜백)
                 success: function (result) {
                     console.log('\"' + result.title + '\" 이(가) 추가 되었습니다.');
                     addTodo(result);
