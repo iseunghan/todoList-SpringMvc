@@ -36,20 +36,20 @@ values (null, '2021-01-28', 'NEVER', '✘를 누르면 할일이 삭제됩니다
 * 할일이 없는 경우
 
 #### 메인 화면 (홈 화면)
-![homeImg](src/main/resources/static/img/homeImage.png)
+![homeImg](src/main/resources/static/img/index.png)
 
 * 설명
-    - ✅ 버튼을 클릭하면, 배경이 흐릿 해지고 글씨에 취소선이 생기면서 할일이 완료 처리가 됩니다.
-    - ↪️ 버튼을 클릭하면, 완료 된 할일이 다시 원래 상태(미 완료)로 돌아갑니다.
-    - 🗑 버튼을 클릭하면, 할일이 삭제가 됩니다.
-    - "오늘의 할일을 적어보세요✍️" 에 할일을 적고 ADD 버튼을 눌러주면 할일이 추가 됩니다.
+    - 할일을 클릭하면, 배경이 흐릿 해지고 글씨에 취소선이 생기면서 할일이 완료 처리가 됩니다.
+    - 완료된 할일을 다시 클릭하면, 완료 된 할일이 다시 원래 상태(미 완료)로 돌아갑니다.
+    - ✘ 버튼을 클릭하면, 할일이 삭제가 됩니다.
+    - "오늘의 할일을 적어보세요✍️" 에 할일을 적고 ADD 버튼을 클릭하면 할일이 추가 됩니다.
     - 빈칸을 입력하면 아래와 같이 alert를 발생시키도록 했습니다.
 ---
 
 #### alert 발생 화면
-![alertImg](src/main/resources/static/img/alertImage.png)
+![alertImg](src/main/resources/static/img/alert.png)
 
 ---
 #### 할일이 없는 경우
-![emptyTodo](src/main/resources/static/img/emptyTodo.png)
+![emptyTodo](src/main/resources/static/img/empty_todo.png)
 
