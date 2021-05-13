@@ -15,6 +15,9 @@ public class TodoItem {
     @Enumerated(value = EnumType.STRING)
     private TodoStatus status = TodoStatus.NEVER;
     private LocalDate date;
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    private User user;
 
     public TodoItem() {
     }
@@ -24,6 +27,14 @@ public class TodoItem {
         this.title = title;
         this.status = status;
         this.date = date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Long getId() {

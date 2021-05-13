@@ -2,7 +2,9 @@ package me.iseunghan.todolist.service;
 
 import me.iseunghan.todolist.model.TodoItem;
 import me.iseunghan.todolist.model.TodoStatus;
+import me.iseunghan.todolist.model.User;
 import me.iseunghan.todolist.repository.TodoRepository;
+import me.iseunghan.todolist.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,16 +18,20 @@ public class TodoService {
 
     @Autowired
     private TodoRepository todoRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * by.승한 - 할일을 추가해주는 메소드
      */
-    public TodoItem addTodo(TodoItem todoItem) {
+    public TodoItem addTodo(TodoItem todoItem, Long userId) {
+        User user = userRepository.findById(userId).get();
         try {
             if (todoItem.getTitle() == "") {
                 // 공백일 때
                 throw new IllegalStateException("공백을 입력할 수 없습니다.");
             }
+            todoItem.setUser(user);
             return todoRepository.save(todoItem);
         } catch (IllegalStateException e) {
             e.printStackTrace();
@@ -38,6 +44,10 @@ public class TodoService {
      */
     public List<TodoItem> getTodoItemList() {
         return todoRepository.findAll();
+    }
+
+    public List<TodoItem> getTodoItemListByUserId(Long userId) {
+        return todoRepository.findByUserId(userId);
     }
 
     /**

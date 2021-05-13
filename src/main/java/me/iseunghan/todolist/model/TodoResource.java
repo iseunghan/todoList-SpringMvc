@@ -21,9 +21,9 @@ public class TodoResource extends RepresentationModel {
     public TodoResource() {
     }
 
-    public TodoResource(TodoItem todoItem) {
+    public TodoResource(TodoItem todoItem, Long userId) {
         this.todoItem = todoItem;
-        add(linkTo(TodoListController.class).slash(todoItem.getId()).withSelfRel());    // 컨트롤러에서 하나하나 생성할 수 없으니까 생성자에서 추가!
+        add(linkTo(TodoListController.class, userId).slash(todoItem.getId()).withSelfRel());    // 컨트롤러에서 하나하나 생성할 수 없으니까 생성자에서 추가!
     }
 
     public TodoItem getTodoItem() {
