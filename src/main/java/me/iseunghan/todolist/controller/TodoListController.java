@@ -13,7 +13,7 @@ import java.util.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
-@RequestMapping(value = "/todoLists", produces = MediaTypes.HAL_JSON_VALUE)
+@RequestMapping(value = "/user/{userId}/todoLists")
 public class TodoListController {
 
     // 필드로 DI(의존성 주입)를 하게 되면 final로 선언이 안된다. (final로 하고 싶다면, 생성자 DI 사용)
@@ -28,15 +28,15 @@ public class TodoListController {
     /**
      * by.승한 - URI에 포함된 id로 하나의 할일을 조회하는 컨트롤러 입니다.
      *
-     * @param id
+     * @param userId, id
      * @return 200 상태코드와, HTTP body부분에 객체를 json형태로 담아서 응답을 보냅니다. (link정보에는 자신의 링크와, 수정, 삭제로 가는 링크가 담겨있습니다.)
      */
     @GetMapping(value = "/{id}")
-    public ResponseEntity selectOne(@PathVariable Long id) {
+    public ResponseEntity selectOne(@PathVariable Long userId, @PathVariable Long id) {
         TodoItem item = todoService.findOne(id);
-        TodoResource todoResource = new TodoResource(item);
-        todoResource.add(linkTo(TodoListController.class).slash(item.getId()).withRel("put"));
-        todoResource.add(linkTo(TodoListController.class).slash(item.getId()).withRel("delete"));
+        TodoResource todoResource = new TodoResource(item, userId);
+        todoResource.add(linkTo(TodoListController.class, userId).slash(item.getId()).withRel("put"));
+        todoResource.add(linkTo(TodoListController.class, userId).slash(item.getId()).withRel("delete"));
 
         return ResponseEntity.ok(todoResource);
     }
@@ -45,19 +45,20 @@ public class TodoListController {
      * by.승한 - 모든 할일을 조회하는 컨트롤러입니다.
      * 모든 할일의 _links에는 self링크와 수정(put), 삭제(delete) 링크를 담아서 응답하고 있습니다.
      *
+     * @param userId USER_ID에 해당하는 모든 할일을 바디에 담아 응답합니다.
      * @return 200 응답을 보내고, CollectionModel로 감싼 TodoResourceList를 보냅니다.
      */
     @GetMapping
-    public ResponseEntity selectAll() {
-        List<TodoItem> todoItemList = todoService.getTodoItemList();
+    public ResponseEntity selectAll(@PathVariable Long userId) {
+        List<TodoItem> todoItemList = todoService.getTodoItemListByUserId(userId);
         // TODO 각각의 링크 정보들 넣기. (질문): json 데이터를 보면, todoREsourceList라고 나오는데 괜찮은가.. (TodoItemList가 맞지 않은가?)
 
         List<TodoResource> resourceList = new ArrayList<>();
         TodoResource todoResource;
         for (TodoItem todoItem : todoItemList) {
-            todoResource = new TodoResource(todoItem);
-            todoResource.add(linkTo(TodoListController.class).slash(todoItem.getId()).withRel("put"));
-            todoResource.add(linkTo(TodoListController.class).slash(todoItem.getId()).withRel("delete"));
+            todoResource = new TodoResource(todoItem, userId);
+            todoResource.add(linkTo(TodoListController.class, userId).slash(todoItem.getId()).withRel("put"));
+            todoResource.add(linkTo(TodoListController.class, userId).slash(todoItem.getId()).withRel("delete"));
             resourceList.add(todoResource);
         }
         CollectionModel<TodoResource> collectionModel = CollectionModel.of(resourceList);
@@ -74,14 +75,14 @@ public class TodoListController {
      * @RequestBody를 이용해서, HTTP 요청 body를 자바 객체로 받을 수 있습니다.
      */
     @PostMapping
-    public ResponseEntity createTodo(@RequestBody TodoitemDto todoitemDto) {
+    public ResponseEntity createTodo(@RequestBody TodoitemDto todoitemDto, @PathVariable Long userId) {
         // @ModelAttribute(객체일때)와 @RequestParam(String,int등)은 생략이 가능하다.
         // 스프링은 객체이면 @ModelAttribute가 생략됐다고, 단순타입(String,int)면 @RequestParam이 생략됐다고 판단한다.
         TodoItem item = modelMapper.map(todoitemDto, TodoItem.class);
-        todoService.addTodo(item);
+        todoService.addTodo(item, userId);
 
-        URI uri = linkTo(TodoListController.class).slash(item.getId()).toUri();
-        TodoResource todoResource = new TodoResource(item);
+        URI uri = linkTo(TodoListController.class, userId).slash(item.getId()).toUri();
+        TodoResource todoResource = new TodoResource(item, userId);
 
         return ResponseEntity.created(uri).body(todoResource);
     }
@@ -93,11 +94,11 @@ public class TodoListController {
      * @return 200 응답과 본문에 변경된 내용을 담아 보냅니다.
      */
     @PatchMapping(value = "/{id}")
-    public ResponseEntity updateStatus(@PathVariable("id") Long id) {
+    public ResponseEntity updateStatus(@PathVariable Long userId, @PathVariable Long id) {
         todoService.updateStatus(id);
         TodoItem one = todoService.findOne(id);
 
-        TodoResource resource = new TodoResource(one);
+        TodoResource resource = new TodoResource(one, userId);
         return ResponseEntity.ok(resource);
     }
 
@@ -108,7 +109,7 @@ public class TodoListController {
      * @return 200 응답을 보냅니다.
      */
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteTodo(@PathVariable("id") Long id) {
+    public ResponseEntity deleteTodo(@PathVariable Long userId, @PathVariable Long id) {
         todoService.deleteTodoItem(id);
 
         return ResponseEntity.ok().build();
