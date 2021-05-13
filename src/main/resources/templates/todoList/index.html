@@ -1,27 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title>🗒To-do List</title>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.rawgit.com/janl/mustache.js/master/mustache.min.js"></script>
 </head>
 
 <body>
 <div class="container">
-    <div class="todo_title">
-        <h1>✏️ To-do List</h1>
+    <div class="row justify-content-end" style="margin-top: 40px">
+        <div class="todo_title col-md-3" id="todo_title" th:userid="${userid}">
+            <h1>✏️ To-do List</h1>
+        </div>
+        <div class="align-self-center" style="margin-top: 70px">
+            <img class="profile-img" style="width: 80px;height: 80px" th:src="${image}">
+        </div>
+        <div class="align-self-start" style="margin-top: 70px">
+            <h3 class="profile-name" th:text="${name}">name</h3>
+        </div>
+        <div class="align-self-start" style="margin-top: 80px">
+            <span>님 안녕하세요.</span>
+        </div>
+        <div class="col-md-2 align-self-start" style="margin-top: 70px">
+            <button class="btn btn-danger" onclick="location.href='/logout'">로그아웃</button>
+        </div>
     </div>
-    <div class="row">
+    <div class="row" style="margin-top: 30px">
         <div class="col-md-12">
             <div class="main-todo-input-wrap">
                 <div class="main-todo-input fl-wrap">
                     <div class="main-todo-input-item">
-                        <input style="font-size:15px; font-family:Sunflower" type="text" id="input-title" name="input-title"
+                        <input style="font-size:15px; font-family:Sunflower" type="text" id="input-title"
+                               name="input-title"
                                placeholder="오늘의 할일을 적어보세요.. ✍️">
                         <button class="add-items main-search-button" type="button" id="add-btn">ADD</button>
                     </div>
@@ -45,6 +59,11 @@
     </div>
 </div>
 <!-- body 태그가 끝나는 지점에 주로 위치 시킨다. -->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/mustache.min.js"></script>
 <script src="js/todoScript.js"></script>
 </body>
 
