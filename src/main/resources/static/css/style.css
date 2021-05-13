@@ -34,7 +34,6 @@
 }
 
 .main-search-button {
-    /*background: #4DB7FE*/
     background: #6DBA57;
 }
 
@@ -61,7 +60,8 @@
 .main-todo-input-wrap2 {
     max-width: 630px;
     margin: 30px auto;
-    padding-left: 100px;
+    padding-left: 60px;
+    padding-right: 60px;
     position: relative;
 }
 
@@ -115,20 +115,10 @@ ul {
     margin-left: 10px
 }
 
-/* 리스트 목록 창 */
-.todo-listing {
-    padding: 0px 20px 0px 0;
-    margin-top: 54px !important
-}
-
 /* todo본문 제목 */
 .todo_title {
     font-family: 'Sunflower', sans-serif;
-    font-size: 20px;
     color: dimgrey;
-    text-align: center;
-    margin-left: 60px;
-    margin-top: 100px;
 }
 
 .empty-todo-list {
@@ -188,7 +178,7 @@ ul {
 ul li {
     cursor: pointer;
     position: relative;
-    width: 602px;
+    width: 510px;
     padding: 12px 8px 12px 40px;
     background: #f9f9f9;
     font-size: 18px;

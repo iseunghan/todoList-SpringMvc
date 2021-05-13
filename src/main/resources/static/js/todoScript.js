@@ -25,6 +25,8 @@
 
 $(function () {
     var $todos = $('.ajax-todo-lists');
+    var $userid = document.getElementById('todo_title').getAttribute('userid');
+    console.log('userId: ' + $userid + '의 할일 리스트입니다.');
 
     var todoTemplate = "" +
         "<li li-data-id={{id}}>" +
@@ -58,7 +60,7 @@ $(function () {
      */
     $.ajax({
         type: 'GET', // default 값이 GET
-        url: 'http://localhost:8080/todoLists',
+        url: 'http://localhost:8080/user/' + $userid + '/todoLists',
 
         //서버의 응답데이터가 클라이언트에게 도착하면 자동으로 실행되는함수(콜백)
         success: function (result) {	// 꼭 result로 설정하는건 아니고, 내가 맘대로 정해줘도 된다!!
@@ -82,7 +84,7 @@ $(function () {
 
         if (validateForm()) {
             $.ajax({
-                url: 'http://localhost:8080/todoLists',
+                url: 'http://localhost:8080/user/' + $userid + '/todoLists',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -94,11 +96,40 @@ $(function () {
                 success: function (result) {
                     console.log('\"' + result.title + '\" 이(가) 추가 되었습니다.');
                     addTodo(result);
+                    $('#input-title').val(''); // input 공백으로 초기
                 },
                 fail: function (result) {
                     alert('통신 실패');
                 }
             });
+        }
+    });
+
+    var keydown = false;    // 중복 발생 방지하기 위한 변수
+    const $input = document.getElementById('input-title');
+    $input.addEventListener('keydown', function (e) {
+        if (keydown) return;
+        else {
+            // key가 Enter이고, 빈칸 입력이 아닐 때 실행!
+            if (e.key == 'Enter' && validateForm()) {
+                keydown = true;     // 엔터키가 눌렸고, 빈칸 체크도 완료했을 때, true로 값을 줘서 중복 실행 방지!
+                $.ajax({
+                    url: 'http://localhost:8080/user/' + $userid + '/todoLists',
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        title: $('#' + $input.id).val()
+                    }),
+
+                    success: function (result) {
+                        console.log(result);
+                        addTodo(result);
+                        $('#input-title').val(''); // input 공백으로 초기
+                        keydown = false;
+                    }
+                });
+            }
         }
     });
 
@@ -121,7 +152,7 @@ $(function () {
         if(e.target == $(this).get(0)) {
 
             $.ajax({
-                url: 'http://localhost:8080/todoLists/' + $(this).attr('li-data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
+                url: 'http://localhost:8080/user/' + $userid + '/todoLists' + '/' + $(this).attr('li-data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
                 type: 'PATCH',
 
                 success: function (result) {
@@ -147,7 +178,7 @@ $(function () {
         var $li = $(this).closest('li');
 
         $.ajax({
-            url: 'http://localhost:8080/todoLists/' + $(this).attr('data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
+            url: 'http://localhost:8080/user/' + $userid + '/todoLists' + '/' + $(this).attr('data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
             type: 'DELETE',
 
             success: function (result) {
