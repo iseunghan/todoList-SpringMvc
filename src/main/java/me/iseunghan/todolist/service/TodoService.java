@@ -2,14 +2,16 @@ package me.iseunghan.todolist.service;
 
 import me.iseunghan.todolist.model.TodoItem;
 import me.iseunghan.todolist.model.TodoStatus;
-import me.iseunghan.todolist.model.User;
+import me.iseunghan.todolist.model.TodoitemDto;
 import me.iseunghan.todolist.repository.TodoRepository;
-import me.iseunghan.todolist.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -19,80 +21,54 @@ public class TodoService {
     @Autowired
     private TodoRepository todoRepository;
     @Autowired
-    private UserRepository userRepository;
+    private ModelMapper modelMapper;
 
     /**
      * by.승한 - 할일을 추가해주는 메소드
      */
-    public TodoItem addTodo(TodoItem todoItem, Long userId) {
-        User user = userRepository.findById(userId).get();
-        try {
-            if (todoItem.getTitle() == "") {
-                // 공백일 때
-                throw new IllegalStateException("공백을 입력할 수 없습니다.");
-            }
-            todoItem.setUser(user);
-            return todoRepository.save(todoItem);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
+    public TodoItem addTodo(TodoitemDto todoitemDto) {
+        if (!StringUtils.hasText(todoitemDto.getTitle())) {
+            throw new IllegalStateException("공백을 입력할 수 없습니다.");
         }
-        return todoItem;
+        TodoItem todo = modelMapper.map(todoitemDto, TodoItem.class);
+
+        return todoRepository.save(todo);
     }
 
     /**
-     * by.승한 - 전체 할일 목록 조회
+     * by.승한 - 전체 할일 목록 조회 (ex. page=0&size=5)
      */
-    public List<TodoItem> getTodoItemList() {
-        return todoRepository.findAll();
-    }
-
-    public List<TodoItem> getTodoItemListByUserId(Long userId) {
-        return todoRepository.findByUserId(userId);
+    public Page<TodoItem> findAllPageable(Pageable pageable) {
+        return todoRepository.findAll(pageable);
     }
 
     /**
      * by.승한 - id로 하나의 할일을 조회하는 메소드
      */
-    public TodoItem findOne(Long id) {
-        Optional<TodoItem> todoItemOptional = todoRepository.findById(id);
-
-        if (todoItemOptional.isPresent()) {
-            TodoItem todoItem = todoItemOptional.get();
-
-            return todoItem;
-        } else {
-            throw new NoSuchElementException("존재하지 않는 할일입니다.");
-        }
-    }
-
-    /**
-     * by.승한 - 날짜로 할일을 조회하는 메소드
-     */
-    public List<TodoItem> findTodoListByDate(LocalDate date) {
-        List<TodoItem> list = todoRepository.findByDate(date);
-        if (list.isEmpty()) {
-            // 없을 때, view 처리를 어떻게 해줄까?
-            // -> null을 던지면 타임리프 if문에 걸려서 "할일이 없다고 표시"
-        }
-        return list;
+    public TodoItem findById(Long id) {
+        return todoRepository.findById(id)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("존재하지 않는 할일입니다.");
+                });
     }
 
     /**
      * by.승한 - 할일의 상태를 수정(변경)해주는 메소드
-     *          DONE 일 경우 -> NEVER, NEVER 일 경우 그 반대.
+     * DONE 일 경우 -> NEVER, NEVER 일 경우 그 반대.
      */
-    public void updateStatus(Long id) {
+    public TodoItem updateStatus(Long id) {
         Optional<TodoItem> todoItemOptional = todoRepository.findById(id);
 
         if (todoItemOptional.isPresent()) {
             TodoItem todoItem = todoItemOptional.get();
 
-            if(todoItem.getStatus().equals(TodoStatus.NEVER)) {
+            if (todoItem.getStatus().equals(TodoStatus.NEVER)) {
                 todoItem.setStatus(TodoStatus.DONE);
-            }else{
+            } else {
                 todoItem.setStatus(TodoStatus.NEVER);
             }
-            todoRepository.save(todoItem);
+            todoItem.setUpdatedAt(LocalDateTime.now());
+            return todoRepository.save(todoItem);
         } else {
             throw new NoSuchElementException("존재하지 않는 할일입니다.");
         }
@@ -102,13 +78,6 @@ public class TodoService {
      * by.승한 - id로 조회해서 존재할 경우 삭제해주는 메소드
      */
     public void deleteTodoItem(Long id) {
-        Optional<TodoItem> optional = todoRepository.findById(id);
-
-        if (optional.isPresent()) {
-            TodoItem todoItem = optional.get();
-            todoRepository.delete(todoItem);
-        } else {
-            throw new NoSuchElementException("존재하지 않는 할일입니다.");
-        }
+        todoRepository.deleteById(id);
     }
 }
