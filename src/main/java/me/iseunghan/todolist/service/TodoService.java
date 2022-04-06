@@ -1,8 +1,10 @@
 package me.iseunghan.todolist.service;
 
+import me.iseunghan.todolist.exception.NotEmptyException;
+import me.iseunghan.todolist.exception.NotFoundException;
 import me.iseunghan.todolist.model.TodoItem;
+import me.iseunghan.todolist.model.TodoItemDto;
 import me.iseunghan.todolist.model.TodoStatus;
-import me.iseunghan.todolist.model.TodoitemDto;
 import me.iseunghan.todolist.repository.TodoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -26,11 +27,13 @@ public class TodoService {
     /**
      * by.승한 - 할일을 추가해주는 메소드
      */
-    public TodoItem addTodo(TodoitemDto todoitemDto) {
+    public TodoItem addTodo(TodoItemDto todoitemDto) {
         if (!StringUtils.hasText(todoitemDto.getTitle())) {
-            throw new IllegalStateException("공백을 입력할 수 없습니다.");
+            throw new NotEmptyException(todoitemDto.getId());
         }
         TodoItem todo = modelMapper.map(todoitemDto, TodoItem.class);
+        todo.setCreatedAt(LocalDateTime.now());
+        todo.setUpdatedAt(LocalDateTime.now());
 
         return todoRepository.save(todo);
     }
@@ -48,7 +51,7 @@ public class TodoService {
     public TodoItem findById(Long id) {
         return todoRepository.findById(id)
                 .orElseThrow(() -> {
-                    throw new NoSuchElementException("존재하지 않는 할일입니다.");
+                    throw new NotFoundException(id);
                 });
     }
 
@@ -70,14 +73,19 @@ public class TodoService {
             todoItem.setUpdatedAt(LocalDateTime.now());
             return todoRepository.save(todoItem);
         } else {
-            throw new NoSuchElementException("존재하지 않는 할일입니다.");
+            throw new NotFoundException(id);
         }
     }
 
     /**
      * by.승한 - id로 조회해서 존재할 경우 삭제해주는 메소드
      */
-    public void deleteTodoItem(Long id) {
+    public Long deleteTodoItem(Long id) {
+        todoRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(id));
+
         todoRepository.deleteById(id);
+
+        return id;
     }
 }
