@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -24,9 +25,6 @@ public class TodoService {
     @Autowired
     private ModelMapper modelMapper;
 
-    /**
-     * by.승한 - 할일을 추가해주는 메소드
-     */
     public TodoItem addTodo(TodoItemDto todoitemDto) {
         if (!StringUtils.hasText(todoitemDto.getTitle())) {
             throw new NotEmptyException(todoitemDto.getId());
@@ -38,16 +36,10 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
-    /**
-     * by.승한 - 전체 할일 목록 조회 (ex. page=0&size=5)
-     */
     public Page<TodoItem> findAllPageable(Pageable pageable) {
         return todoRepository.findAll(pageable);
     }
 
-    /**
-     * by.승한 - id로 하나의 할일을 조회하는 메소드
-     */
     public TodoItem findById(Long id) {
         return todoRepository.findById(id)
                 .orElseThrow(() -> {
@@ -55,10 +47,7 @@ public class TodoService {
                 });
     }
 
-    /**
-     * by.승한 - 할일의 상태를 수정(변경)해주는 메소드
-     * DONE 일 경우 -> NEVER, NEVER 일 경우 그 반대.
-     */
+    @Transactional
     public TodoItem updateStatus(Long id) {
         Optional<TodoItem> todoItemOptional = todoRepository.findById(id);
 
@@ -71,19 +60,15 @@ public class TodoService {
                 todoItem.setStatus(TodoStatus.NEVER);
             }
             todoItem.setUpdatedAt(LocalDateTime.now());
-            return todoRepository.save(todoItem);
+            return todoItem;
         } else {
             throw new NotFoundException(id);
         }
     }
 
-    /**
-     * by.승한 - id로 조회해서 존재할 경우 삭제해주는 메소드
-     */
     public Long deleteTodoItem(Long id) {
         todoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(id));
-
         todoRepository.deleteById(id);
 
         return id;

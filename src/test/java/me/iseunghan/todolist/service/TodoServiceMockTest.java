@@ -14,13 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -131,13 +129,11 @@ class TodoServiceMockTest {
         // given
         TodoItem mockTodo = getMockTodo(123L);
         when(todoRepository.findById(anyLong())).thenReturn(Optional.of(mockTodo));
-        when(todoRepository.save(any(TodoItem.class))).thenReturn(mockTodo);
 
         // when
         TodoItem result = todoService.updateStatus(123L);
 
         // then
-        verify(todoRepository, times(1)).save(any(TodoItem.class));
         assertEquals(result.getStatus(), TodoStatus.DONE);
     }
 
