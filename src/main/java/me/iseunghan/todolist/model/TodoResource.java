@@ -1,32 +1,41 @@
 package me.iseunghan.todolist.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import jdk.nashorn.internal.ir.annotations.Ignore;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import me.iseunghan.todolist.controller.TodoListController;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.RepresentationModel;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-public class TodoResource extends RepresentationModel {
+@NoArgsConstructor
+public class TodoResource extends RepresentationModel<TodoResource> {
 
+    @Getter
     @JsonUnwrapped
     private TodoItem todoItem;
 
-
-    public TodoResource() {
-    }
-
-    public TodoResource(TodoItem todoItem, Long userId) {
+    @Builder
+    public TodoResource(TodoItem todoItem) {
         this.todoItem = todoItem;
-        add(linkTo(TodoListController.class, userId).slash(todoItem.getId()).withSelfRel());    // 컨트롤러에서 하나하나 생성할 수 없으니까 생성자에서 추가!
+        add(linkTo(TodoListController.class).slash(todoItem.getId()).withSelfRel());
+        add(linkTo(TodoListController.class).slash(todoItem.getId()).withRel("put"));
+        add(linkTo(TodoListController.class).slash(todoItem.getId()).withRel("delete"));
     }
 
-    public TodoItem getTodoItem() {
-        return todoItem;
+    public static TodoResource toModel(TodoItem todo) {
+        return new TodoResource(todo);
+    }
+
+    public static CollectionModel<TodoResource> toCollectionModel(List<? extends TodoItem> todos) {
+        return CollectionModel.of(
+                todos.stream()
+                        .map(t -> TodoResource.builder().todoItem(t).build())
+                        .collect(Collectors.toList()));
     }
 }
