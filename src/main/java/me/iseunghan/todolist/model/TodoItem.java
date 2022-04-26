@@ -1,71 +1,38 @@
 package me.iseunghan.todolist.model;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
 
+import static lombok.Builder.Default;
+
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
+@Table(name = "TODO_ITEM")
 public class TodoItem {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "status")
     @Enumerated(value = EnumType.STRING)
+    @Default
     private TodoStatus status = TodoStatus.NEVER;
-    private LocalDate date;
-    @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    private User user;
 
-    public TodoItem() {
-    }
+    @Column(name = "created_at")
+    @Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public TodoItem(Long id, String title, TodoStatus status, LocalDate date) {
-        this.id = id;
-        this.title = title;
-        this.status = status;
-        this.date = date;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public TodoStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TodoStatus status) {
-        this.status = status;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+    @Column(name = "updated_at")
+    @Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }
