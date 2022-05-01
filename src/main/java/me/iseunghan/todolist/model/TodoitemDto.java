@@ -1,25 +1,26 @@
 package me.iseunghan.todolist.model;
 
-import java.time.LocalDate;
+import lombok.*;
+import lombok.Builder.Default;
 
-public class TodoitemDto  {
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class TodoItemDto {
+    private Long id;
+
     private String title;
-    private LocalDate date = LocalDate.now();
-    private TodoStatus todoStatus = TodoStatus.NEVER;
 
-    public String getTitle() {
-        return title;
-    }
+    @Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    @Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+    @Default
+    private TodoStatus status = TodoStatus.NEVER;
 }

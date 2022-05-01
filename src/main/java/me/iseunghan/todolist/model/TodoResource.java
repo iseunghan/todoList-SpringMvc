@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import me.iseunghan.todolist.controller.TodoListController;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
