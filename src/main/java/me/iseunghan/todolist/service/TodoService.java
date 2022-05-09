@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class TodoService {
@@ -49,21 +48,18 @@ public class TodoService {
 
     @Transactional
     public TodoItem updateStatus(Long id) {
-        Optional<TodoItem> todoItemOptional = todoRepository.findById(id);
+        TodoItem todoItem = todoRepository.findById(id)
+                .orElseThrow(() -> {
+                    throw new NotFoundException(id);
+                });
 
-        if (todoItemOptional.isPresent()) {
-            TodoItem todoItem = todoItemOptional.get();
-
-            if (todoItem.getStatus().equals(TodoStatus.NEVER)) {
-                todoItem.setStatus(TodoStatus.DONE);
-            } else {
-                todoItem.setStatus(TodoStatus.NEVER);
-            }
-            todoItem.setUpdatedAt(LocalDateTime.now());
-            return todoItem;
+        if (todoItem.getStatus().equals(TodoStatus.NEVER)) {
+            todoItem.setStatus(TodoStatus.DONE);
         } else {
-            throw new NotFoundException(id);
+            todoItem.setStatus(TodoStatus.NEVER);
         }
+        todoItem.setUpdatedAt(LocalDateTime.now());
+        return todoItem;
     }
 
     public Long deleteTodoItem(Long id) {
