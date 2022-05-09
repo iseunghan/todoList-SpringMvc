@@ -7,6 +7,7 @@ import me.iseunghan.todolist.model.TodoStatus;
 import me.iseunghan.todolist.repository.TodoRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -149,15 +150,29 @@ class TodoServiceMockTest {
     }
 
     @Test
-    void 할일을_삭제할수있다() {
+    void _404(){
+        when(todoRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(NotFoundException.class, () -> todoService.findById(anyLong()));
+    }
+
+
+    @Test
+    void 할일을_삭제할수있다_순서검증() {
         // given
         TodoItem mockTodo = getMockTodo(123L);
         when(todoRepository.findById(123L)).thenReturn(Optional.of(mockTodo));
 
         // when
         Long id = todoService.deleteTodoItem(123L);
+        // 순서 검증
+        InOrder inOrder = inOrder(todoRepository);
 
         // then
+        inOrder.verify(todoRepository).findById(anyLong());
+        inOrder.verify(todoRepository).deleteById(anyLong());
+        verify(todoRepository).findById(123L);
         verify(todoRepository, times(1)).deleteById(123L);
         assertEquals(id, 123L);
     }
