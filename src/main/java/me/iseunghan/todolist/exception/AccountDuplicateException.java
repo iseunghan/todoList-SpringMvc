@@ -4,12 +4,11 @@ import lombok.Getter;
 import me.iseunghan.todolist.exception.model.ErrorCode;
 
 @Getter
-public class UserNotFoundException extends RuntimeException {
+public class AccountDuplicateException extends RuntimeException {
 
     private final String username;
-
-    public UserNotFoundException(String username) {
-        super(ErrorCode.USER_NOT_FOUND.message);
+    public AccountDuplicateException(String username) {
+        super(ErrorCode.DUPLICATE_ACCOUNT.message);
         this.username = username;
     }
 }

@@ -9,11 +9,13 @@ public enum ErrorCode {
 
     NOT_EMPTY_TITLE("title doesn't blank"),
 
-    USER_NOT_FOUND("User Not Found"),
+    ACCOUNT_NOT_FOUND("Account Not Found"),
 
     UNAUTHORIZED("Unauthorized Error"),
 
-    ACCESS_DENIED("AccessDenied Error");
+    ACCESS_DENIED("AccessDenied Error"),
+
+    DUPLICATE_ACCOUNT("Duplicated Account!");
 
     public final String message;
 }
