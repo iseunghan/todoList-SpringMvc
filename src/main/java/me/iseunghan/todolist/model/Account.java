@@ -3,6 +3,8 @@ package me.iseunghan.todolist.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -28,6 +30,18 @@ public class Account {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<AccountRole> roles;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TodoItem> todoList;
+
+    public void addTodo(TodoItem todoItem) {
+        todoItem.setAccount(this);
+
+        if (todoList == null) {
+            todoList = new ArrayList<>();
+        }
+        todoList.add(todoItem);
+    }
 }

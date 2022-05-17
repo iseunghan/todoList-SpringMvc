@@ -1,7 +1,8 @@
-package me.iseunghan.todolist.model;
+package me.iseunghan.todolist.model.dto;
 
 import lombok.*;
 import lombok.Builder.Default;
+import me.iseunghan.todolist.model.TodoStatus;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class TodoItemDto {
+
     private Long id;
 
     private String title;
@@ -23,4 +25,7 @@ public class TodoItemDto {
 
     @Default
     private TodoStatus status = TodoStatus.NEVER;
+
+    private String username;
+
 }
