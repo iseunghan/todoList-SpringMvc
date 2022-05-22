@@ -1,6 +1,7 @@
 package me.iseunghan.todolist.model;
 
 import lombok.*;
+import me.iseunghan.todolist.model.dto.PublicAccountDto;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Account {
+public class Account extends PublicAccountDto {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
