@@ -33,7 +33,7 @@ public class TodoService {
             throw new NotEmptyException(todoitemDto.getId());
         }
 
-        Account account = accountService.findAccount(username);
+        Account account = accountService.findAccount_ADMIN(username);
 
         TodoItem todo = modelMapper.map(todoitemDto, TodoItem.class);
         todo.setCreatedAt(LocalDateTime.now());
