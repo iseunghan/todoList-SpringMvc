@@ -2,8 +2,8 @@ package me.iseunghan.todolist.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import me.iseunghan.todolist.model.dto.LoginDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import me.iseunghan.todolist.exception.model.ErrorCode;
+import me.iseunghan.todolist.model.dto.AccountDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -60,11 +60,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
-        if (username == null) {
+        if (username == null || password == null) {
             try {
-                LoginDto loginDto = objectMapper.readValue(request.getInputStream(), LoginDto.class);
-                username = (loginDto.getUsername() != null) ? loginDto.getUsername() : "";
-                password = (loginDto.getPassword() != null) ? loginDto.getPassword() : "";
+                AccountDto accountDto = objectMapper.readValue(request.getInputStream(), AccountDto.class);
+                username = (accountDto.getUsername() != null) ? accountDto.getUsername() : "";
+                password = (accountDto.getPassword() != null) ? accountDto.getPassword() : "";
 
             } catch (IOException e) {
                 log.error("UserInfo Parse ERROR");
@@ -87,14 +87,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         cookie.setPath("/");
         cookie.setDomain("localhost");
 
-        System.out.println(AUTH_HEADER + ", " + AUTH_TYPE);
-        System.out.println(cookie);
         response.addCookie(cookie);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        super.unsuccessfulAuthentication(request, response, failed);
         log.error("유저 정보가 일치하지 않습니다. USER: {}", failed.getMessage());
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ErrorCode.UNAUTHORIZED.message);
     }
 }
