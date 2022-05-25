@@ -15,8 +15,15 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query(value = "select a from Account a join fetch a.roles",
             countQuery = "select count(a) from Account a join a.roles")
-    Page<Account> findAll(Pageable pageable);
+    Page<Account> findAll_ADMIN(Pageable pageable);
+
+    @Query(value = "select a from Account a",
+            countQuery = "select count(a) from Account a")
+    Page<Account> findAll_USER(Pageable pageable);
 
     @Query("select a from Account a join fetch a.roles where a.username = :username")
     Optional<Account> findByUsername(String username);
+
+    @Query("select a from Account a join fetch a.roles join fetch a.todoList where a.username = :username")
+    Optional<Account> findByUsernameWithTodoList(String username);
 }

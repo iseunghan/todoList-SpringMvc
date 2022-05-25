@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Builder
 @Getter
@@ -14,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Account extends PublicAccountDto {
+public class Account {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -31,7 +32,7 @@ public class Account extends PublicAccountDto {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     private Set<AccountRole> roles;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -44,5 +45,11 @@ public class Account extends PublicAccountDto {
             todoList = new ArrayList<>();
         }
         todoList.add(todoItem);
+    }
+
+    public String getRolesToString() {
+        return this.roles.stream()
+                .map(AccountRole::toString)
+                .collect(Collectors.joining(","));
     }
 }

@@ -87,22 +87,13 @@ public class TodoServiceTest {
     }
 
     @Test
-    void 해당_account_모든_todo_조회() {
-        // when
-        List<TodoItem> todoList = todoService.findAllByUsername("test");
-
-        // then
-        assertNotEquals(todoList.size(), 0);
-    }
-
-    @Test
     void 해당_유저의_모든_할일을_조회할_수있다_with_pageable() {
         // given
         int size = 5;
         int page_size = this.todoItemDtos.size() / size;
 
         // when
-        Page<TodoItem> pageResult = todoService.findAllByUsername(PageRequest.of(0, 5), "test");
+        Page<TodoItem> pageResult = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
 
         // then
         List<TodoItem> content = pageResult.getContent();
@@ -112,12 +103,24 @@ public class TodoServiceTest {
     }
 
     @Test
-    void 해당_유저의_모든_할일을_조회할_수있다_without_pageable() {
+    void 하나의_할일을_조회할_수있다() {
         // when
-        List<TodoItem> todoList = todoService.findAllByUsername("test");
+        TodoItem todo = todoService.findById(1L);
 
         // then
-        assertEquals(todoList.size(), 10);
+        assertNotNull(todo.getTitle());
+        assertNotNull(todo.getStatus());
+        assertNotNull(todo.getUpdatedAt());
+        assertNotNull(todo.getCreatedAt());
+    }
+
+    @Test
+    void 없는_할일을_조회하면_404() {
+        // when
+        TodoNotFoundException nfe = assertThrows(TodoNotFoundException.class, () -> todoService.findById(999L));
+
+        // then
+        assertEquals(nfe.getId(), 999);
     }
 
     @Test

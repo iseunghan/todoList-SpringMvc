@@ -3,17 +3,23 @@ package me.iseunghan.todolist.service;
 import me.iseunghan.todolist.exception.AccountNotFoundException;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.TodoItem;
+import me.iseunghan.todolist.model.dto.AdminAccountDto;
 import me.iseunghan.todolist.model.dto.PublicAccountDto;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.model.TodoStatus;
 import me.iseunghan.todolist.model.dto.AccountDto;
+import me.iseunghan.todolist.repository.AccountRepository;
 import me.iseunghan.todolist.repository.TodoRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,9 +73,47 @@ class AccountServiceTest {
     }
 
     @Test
-    void 하나의_account_조회할_수있다_ADMIN() {
+    void ADMIN은_모든_회원_정보를_조회할_수있다() {
         // when
-        Account account = accountService.findAccount_ADMIN("test");
+        Page<AdminAccountDto> accountPage = accountService.findAll_ADMIN(PageRequest.of(0, 5));
+
+        AdminAccountDto testAccount = accountPage.getContent().get(3);
+
+        // then
+        assertEquals(accountPage.getTotalElements(), 5);
+        assertEquals(testAccount.getUsername(), "test");
+        assertEquals(testAccount.getEmail(), "test@email.com");
+        assertEquals(testAccount.getNickname(), "test-nick");
+    }
+
+    @Test
+    void USER는_모든_회원의_public_정보를_조회할_수있다() {
+        // when
+        Page<PublicAccountDto> accountPage = accountService.findAll_USER(PageRequest.of(0, 5));
+        PublicAccountDto testAccountDto = accountPage.getContent().get(3);
+
+        // then
+        assertEquals(testAccountDto.getUsername(), "test");
+        assertEquals(testAccountDto.getEmail(), "test@email.com");
+        assertEquals(testAccountDto.getNickname(), "test-nick");
+
+    }
+
+    @Test
+    void ADMIN은_하나의_account_조회할_수있다() {
+        // when
+        AdminAccountDto account = accountService.findAccount_ADMIN("test");
+
+        // then
+        assertEquals(account.getUsername(), "test");
+        assertEquals(account.getEmail(), "test@email.com");
+        assertEquals(account.getNickname(), "test-nick");
+    }
+
+    @Test
+    void USER는_자신의_account_조회할_수있다() {
+        // when
+        Account account = accountService.findMyAccount("test");
 
         // then
         assertEquals(account.getUsername(), "test");
@@ -77,9 +121,8 @@ class AccountServiceTest {
         assertEquals(account.getEmail(), "test@email.com");
         assertEquals(account.getNickname(), "test-nick");
     }
-
     @Test
-    void 하나의_public_account_조회할_수있다_USER() {
+    void USER는_하나의_public_account_조회할_수있다() {
         // when
         PublicAccountDto account = accountService.findAccount_USER("test");
 
@@ -95,7 +138,7 @@ class AccountServiceTest {
         String username = "ghost";
 
         // when & then
-        AccountNotFoundException nfe = assertThrows(AccountNotFoundException.class, () -> accountService.findAccount_ADMIN(username));
+        AccountNotFoundException nfe = assertThrows(AccountNotFoundException.class, () -> accountService.findMyAccount(username));
         assertEquals(nfe.getUsername(), username);
     }
 
@@ -140,9 +183,9 @@ class AccountServiceTest {
         // given
 
         // when
-        List<TodoItem> test_todoList = todoService.findAllByUsername("test");
+        Page<TodoItem> todoPage = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
         // then
-        assertEquals(test_todoList.size(), 0);
+        assertEquals(todoPage.getTotalElements(), 0);
     }
 
     @Test

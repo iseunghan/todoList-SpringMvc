@@ -7,9 +7,11 @@ import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.AccountAdapter;
 import me.iseunghan.todolist.model.AccountRole;
 import me.iseunghan.todolist.model.dto.AccountDto;
+import me.iseunghan.todolist.model.dto.AdminAccountDto;
 import me.iseunghan.todolist.model.dto.PublicAccountDto;
 import me.iseunghan.todolist.repository.AccountRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -53,33 +56,68 @@ public class AccountService implements UserDetailsService {
     }
 
     /* ADMIN_ROLE: 관리자가 모든 회원 정보 조회 */
-    public List<Account> findAll() {
-        return accountRepository.findAll();
+    public Page<AdminAccountDto> findAll_ADMIN(Pageable pageable) {
+        Page<Account> accountPage = accountRepository.findAll_ADMIN(pageable);
+
+        List<AdminAccountDto> adminAccountDtoList = accountPage.getContent().stream()
+                .map(a -> AdminAccountDto.builder()
+                        .username(a.getUsername())
+                        .email(a.getEmail())
+                        .nickname(a.getNickname())
+                        .role(a.getRolesToString())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new PageImpl<AdminAccountDto>(adminAccountDtoList, pageable, accountPage.getTotalElements());
     }
 
-    public Page<Account> findAll(Pageable pageable) {
-        return accountRepository.findAll(pageable);
+    public Page<PublicAccountDto> findAll_USER(Pageable pageable) {
+        Page<Account> account = accountRepository.findAll_USER(pageable);
+
+        List<PublicAccountDto> publicAccountDtoList = account.getContent().stream()
+                .map(a -> PublicAccountDto.builder()
+                            .username(a.getUsername())
+                            .email(a.getEmail())
+                            .nickname(a.getNickname())
+                            .build())
+                .collect(Collectors.toList());
+
+        return new PageImpl<PublicAccountDto>(publicAccountDtoList, pageable, account.getTotalElements());
     }
 
-    /* ADMIN_ROLE: 관리자가 특정 회원 정보 조회 */
-    public Account findAccount_ADMIN(String username) {
+    public Account findMyAccount(String username) {
         return accountRepository.findByUsername(username)
                 .orElseThrow(() -> new AccountNotFoundException(username));
     }
 
+    /* ADMIN_ROLE: 관리자가 특정 회원 정보 조회 */
+    public AdminAccountDto findAccount_ADMIN(String username) {
+        Account account = accountRepository.findByUsernameWithTodoList(username)
+                .orElseThrow(() -> new AccountNotFoundException(username));
+
+        return AdminAccountDto.builder()
+                .username(account.getUsername())
+                .email(account.getEmail())
+                .nickname(account.getNickname())
+                .role(account.getRolesToString())
+                .todoSize(account.getTodoList().size())
+                .build();
+    }
+
     /* USER_ROLE: 모든 사용자가 보는 다른 회원의 공개되도 안전한 정보 */
     public PublicAccountDto findAccount_USER(String username) {
-        Account account = accountRepository.findByUsername(username)
+        Account account = accountRepository.findByUsernameWithTodoList(username)
                 .orElseThrow(() -> new AccountNotFoundException(username));
 
         return new PublicAccountDto(account.getUsername(),
                                     account.getEmail(),
-                                    account.getNickname());
+                                    account.getNickname(),
+                                    account.getTodoList().size());
     }
 
     @Transactional
     public Account updateAccount(String username, AccountDto accountDto) {
-        Account account = findAccount_ADMIN(username);
+        Account account = findMyAccount(username);
 
         if (accountDto.getUsername() != null) {
             isDuplicateAccount(accountDto.getUsername());
@@ -95,11 +133,11 @@ public class AccountService implements UserDetailsService {
             account.setNickname(accountDto.getNickname());
         }
 
-        return account;
+        return account; // dirty checking!
     }
 
     public void deleteAccount(String username) {
-        Account account = findAccount_ADMIN(username);
+        Account account = findMyAccount(username);
         accountRepository.delete(account);
     }
 

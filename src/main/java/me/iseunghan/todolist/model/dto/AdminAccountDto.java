@@ -4,11 +4,10 @@ import lombok.*;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class PublicAccountDto {
-
+public class AdminAccountDto {
     private String username;
 
     private String email;
@@ -16,4 +15,6 @@ public class PublicAccountDto {
     private String nickname;
 
     private int todoSize;
+
+    private String role;
 }

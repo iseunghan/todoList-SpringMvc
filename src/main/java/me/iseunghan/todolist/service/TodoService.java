@@ -11,13 +11,11 @@ import me.iseunghan.todolist.repository.TodoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -33,7 +31,7 @@ public class TodoService {
             throw new NotEmptyException(todoitemDto.getId());
         }
 
-        Account account = accountService.findAccount_ADMIN(username);
+        Account account = accountService.findMyAccount(username);
 
         TodoItem todo = modelMapper.map(todoitemDto, TodoItem.class);
         todo.setCreatedAt(LocalDateTime.now());
@@ -44,20 +42,16 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
-    public Page<TodoItem> findAllPageable(@PageableDefault(size = 5) Pageable pageable) {
+    public Page<TodoItem> findAll(Pageable pageable) {
         return todoRepository.findAll(pageable);
     }
 
-    public List<TodoItem> findAllByUsername(String username) {
-        return todoRepository.findAllByUsername(username);
-    }
-
-    public Page<TodoItem> findAllByUsername(@PageableDefault(size = 5) Pageable pageable, String username) {
-        return todoRepository.findAllByUsername(username, pageable);
-    }
-
-    public Page<TodoItem> findAllPage(Pageable pageable) {
+    public Page<TodoItem> findAllFetchJoin(Pageable pageable) {
         return todoRepository.findAllByFetchJoin(pageable);
+    }
+
+    public Page<TodoItem> findUserTodoList(Pageable pageable, String username) {
+        return todoRepository.findAllByUsername(username, pageable);
     }
 
     public TodoItem findById(Long id) {

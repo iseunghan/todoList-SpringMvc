@@ -7,13 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface TodoRepository extends JpaRepository<TodoItem, Long> {
-
-    @Query("select t from TodoItem t join fetch t.account where t.account.username = :username")
-    List<TodoItem> findAllByUsername(String username);
 
     @Query(value = "select t from TodoItem t join fetch t.account where t.account.username = :username",
             countQuery = "select count(t) from TodoItem t join t.account where t.account.username = :username")
