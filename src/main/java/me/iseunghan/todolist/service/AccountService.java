@@ -116,7 +116,7 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public Account updateAccount(String username, AccountDto accountDto) {
+    public Long updateAccount(String username, AccountDto accountDto) {
         Account account = findMyAccount(username);
 
         if (accountDto.getUsername() != null) {
@@ -133,7 +133,7 @@ public class AccountService implements UserDetailsService {
             account.setNickname(accountDto.getNickname());
         }
 
-        return account; // dirty checking!
+        return account.getId(); // dirty checking!
     }
 
     public void deleteAccount(String username) {

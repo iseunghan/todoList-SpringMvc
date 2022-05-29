@@ -10,12 +10,15 @@ import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.repository.TodoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -42,8 +45,20 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
-    public Page<TodoItem> findAll(Pageable pageable) {
-        return todoRepository.findAll(pageable);
+    public Page<TodoItemDto> findAll(Pageable pageable) {
+        Page<TodoItem> todoPage = todoRepository.findAll(pageable);
+
+        List<TodoItemDto> todoDtos = todoPage.getContent().stream().map(t -> TodoItemDto.builder()
+                        .id(t.getId())
+                        .title(t.getTitle())
+                        .createdAt(t.getCreatedAt())
+                        .updatedAt(t.getUpdatedAt())
+                        .status(t.getStatus())
+                        .username(t.getAccount().getUsername())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new PageImpl<TodoItemDto>(todoDtos, pageable, todoPage.getTotalElements());
     }
 
     public Page<TodoItem> findAllFetchJoin(Pageable pageable) {
