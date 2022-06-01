@@ -1,6 +1,5 @@
 package me.iseunghan.todolist.controller.admin;
 
-import me.iseunghan.todolist.model.TodoItem;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ public class AdminTodoListApiController {
     private TodoService todoService;
 
     @GetMapping("/accounts/todolist")
-    public ResponseEntity getTodoList(@PageableDefault(page = 0, size = 10) Pageable pageable) {
+    public ResponseEntity getTodoList(@PageableDefault Pageable pageable) {
         Page<TodoItemDto> todoList = todoService.findAll(pageable);
 
         return ResponseEntity.ok(todoList);
