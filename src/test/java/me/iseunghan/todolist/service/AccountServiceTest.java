@@ -153,12 +153,10 @@ class AccountServiceTest {
                 .build();
 
         // when
-        Account account = accountService.updateAccount("test2", accountDto);
+        Long id = accountService.updateAccount("test2", accountDto);
 
         // then
-        assertEquals(account.getUsername(), accountDto.getUsername());
-        assertEquals(account.getEmail(), accountDto.getEmail());
-        assertEquals(account.getNickname(), accountDto.getNickname());
+        assertNotNull(id);
     }
 
     @Test
@@ -183,7 +181,8 @@ class AccountServiceTest {
         // given
 
         // when
-        Page<TodoItem> todoPage = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
+        Page<TodoItemDto> todoPage = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
+
         // then
         assertEquals(todoPage.getTotalElements(), 0);
     }

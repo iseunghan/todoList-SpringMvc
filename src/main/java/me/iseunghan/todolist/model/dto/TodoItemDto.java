@@ -2,6 +2,7 @@ package me.iseunghan.todolist.model.dto;
 
 import lombok.*;
 import lombok.Builder.Default;
+import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.TodoStatus;
 
 import java.time.LocalDateTime;
@@ -28,4 +29,7 @@ public class TodoItemDto {
 
     private String username;
 
+    public void setAccount(Account account) {
+        this.username = account.getUsername();
+    }
 }

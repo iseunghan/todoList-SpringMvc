@@ -29,7 +29,7 @@ public class TodoService {
     private final ModelMapper modelMapper;
 
     @Transactional
-    public TodoItem addTodo(String username, TodoItemDto todoitemDto) {
+    public TodoItemDto addTodo(String username, TodoItemDto todoitemDto) {
         if (!StringUtils.hasText(todoitemDto.getTitle())) {
             throw new NotEmptyException(todoitemDto.getId());
         }
@@ -42,20 +42,16 @@ public class TodoService {
         todo.setStatus(TodoStatus.NEVER);
         todo.addAccount(account);
 
-        return todoRepository.save(todo);
+        TodoItem save = todoRepository.save(todo);
+
+        return modelMapper.map(save, TodoItemDto.class);
     }
 
     public Page<TodoItemDto> findAll(Pageable pageable) {
         Page<TodoItem> todoPage = todoRepository.findAll(pageable);
 
-        List<TodoItemDto> todoDtos = todoPage.getContent().stream().map(t -> TodoItemDto.builder()
-                        .id(t.getId())
-                        .title(t.getTitle())
-                        .createdAt(t.getCreatedAt())
-                        .updatedAt(t.getUpdatedAt())
-                        .status(t.getStatus())
-                        .username(t.getAccount().getUsername())
-                        .build())
+        List<TodoItemDto> todoDtos = todoPage.getContent().stream()
+                .map(t -> modelMapper.map(t, TodoItemDto.class))
                 .collect(Collectors.toList());
 
         return new PageImpl<TodoItemDto>(todoDtos, pageable, todoPage.getTotalElements());
@@ -65,19 +61,26 @@ public class TodoService {
         return todoRepository.findAllByFetchJoin(pageable);
     }
 
-    public Page<TodoItem> findUserTodoList(Pageable pageable, String username) {
-        return todoRepository.findAllByUsername(username, pageable);
+    public Page<TodoItemDto> findUserTodoList(Pageable pageable, String username) {
+
+        Page<TodoItem> todoItemPage = todoRepository.findAllByUsername(username, pageable);
+
+        List<TodoItemDto> dtos = todoItemPage.getContent().stream()
+                .map(t -> modelMapper.map(t, TodoItemDto.class))
+                .collect(Collectors.toList());
+
+        return new PageImpl<TodoItemDto>(dtos, pageable, todoItemPage.getTotalElements());
     }
 
-    public TodoItem findById(Long id) {
-        return todoRepository.findById(id)
-                .orElseThrow(() -> {
-                    throw new TodoNotFoundException(id);
-                });
+    public TodoItemDto findById(Long id) {
+        TodoItem todo = todoRepository.findByIdWithFetchJoin(id)
+                .orElseThrow(() -> new TodoNotFoundException(id));
+
+        return modelMapper.map(todo, TodoItemDto.class);
     }
 
     @Transactional
-    public TodoItem updateStatus(Long id) {
+    public TodoItemDto updateStatus(Long id) {
         TodoItem todoItem = todoRepository.findById(id)
                 .orElseThrow(() -> {
                     throw new TodoNotFoundException(id);
@@ -90,7 +93,8 @@ public class TodoService {
             todoItem.setStatus(TodoStatus.NEVER);
         }
         todoItem.setUpdatedAt(LocalDateTime.now());
-        return todoItem;
+
+        return modelMapper.map(todoItem, TodoItemDto.class);
     }
 
     public Long deleteTodoItem(Long id) {

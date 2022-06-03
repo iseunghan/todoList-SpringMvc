@@ -1,7 +1,6 @@
 package me.iseunghan.todolist.service;
 
 import me.iseunghan.todolist.exception.TodoNotFoundException;
-import me.iseunghan.todolist.model.TodoItem;
 import me.iseunghan.todolist.model.TodoStatus;
 import me.iseunghan.todolist.model.dto.AccountDto;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
@@ -29,7 +28,7 @@ public class TodoServiceTest {
     private AccountService accountService;
 
     List<TodoItemDto> todoItemDtos = new ArrayList<>();
-    List<TodoItem> todoItems = new ArrayList<>();
+    List<TodoItemDto> savedTodoDtos = new ArrayList<>();
 
     @BeforeAll
     void setup() {
@@ -64,8 +63,8 @@ public class TodoServiceTest {
 
             this.todoItemDtos.add(todo);
 
-            TodoItem todoItem = todoService.addTodo(accountDto.getUsername(), todo);
-            todoItems.add(todoItem);
+            TodoItemDto save = todoService.addTodo(accountDto.getUsername(), todo);
+            savedTodoDtos.add(save);
         }
 
         System.out.println("================= END ===================");
@@ -80,10 +79,10 @@ public class TodoServiceTest {
                 .build();
 
         // when
-        TodoItem todoItem = todoService.addTodo(todoItemDto.getUsername(), todoItemDto);
+        TodoItemDto result = todoService.addTodo(todoItemDto.getUsername(), todoItemDto);
 
         // then
-        assertEquals(todoItem.getTitle(), todoItemDto.getTitle());
+        assertEquals(result.getTitle(), todoItemDto.getTitle());
     }
 
     @Test
@@ -93,10 +92,10 @@ public class TodoServiceTest {
         int page_size = this.todoItemDtos.size() / size;
 
         // when
-        Page<TodoItem> pageResult = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
+        Page<TodoItemDto> pageResult = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
 
         // then
-        List<TodoItem> content = pageResult.getContent();
+        List<TodoItemDto> content = pageResult.getContent();
 
         assertEquals(pageResult.getTotalPages(), page_size);
         assertEquals(pageResult.getContent().size(), size);
@@ -105,7 +104,7 @@ public class TodoServiceTest {
     @Test
     void 하나의_할일을_조회할_수있다() {
         // when
-        TodoItem todo = todoService.findById(1L);
+        TodoItemDto todo = todoService.findById(1L);
 
         // then
         assertNotNull(todo.getTitle());
@@ -126,10 +125,10 @@ public class TodoServiceTest {
     @Test
     void 할일을_상태를_변경할_수있다() {
         // given
-        Long id = this.todoItems.get(0).getId();
+        Long id = this.savedTodoDtos.get(0).getId();
 
         // when
-        TodoItem todoItem = todoService.updateStatus(id);
+        TodoItemDto todoItem = todoService.updateStatus(id);
 
         // then
         assertEquals(todoItem.getStatus(), TodoStatus.DONE);
@@ -148,7 +147,7 @@ public class TodoServiceTest {
     @Test
     void 할일을_삭제할_수있다() {
         // given
-        Long id = this.todoItems.get(0).getId();
+        Long id = this.savedTodoDtos.get(0).getId();
 
         // when & then
         Long delete_id = assertDoesNotThrow(() -> todoService.deleteTodoItem(id));

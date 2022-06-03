@@ -1,7 +1,6 @@
 package me.iseunghan.todolist.model;
 
 import lombok.*;
-import me.iseunghan.todolist.model.dto.PublicAccountDto;
 
 import javax.persistence.*;
 import java.util.ArrayList;
