@@ -74,12 +74,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin().disable()
                     .httpBasic().disable()
 
+                // logout
+                    .logout()
+                    .logoutUrl("/logout")
+                    .addLogoutHandler(new CustomLogoutHandler())
+                    .logoutSuccessUrl("/")
+                    .clearAuthentication(true)
+                    .deleteCookies("Authorization")
+                .and()
+
                 .authorizeRequests()
-                    .antMatchers("/")
+                    .antMatchers("/", "/error")
                         .permitAll()
-                    .antMatchers("/login")
-                        .permitAll()
-                    .antMatchers("/signup")
+                    .antMatchers("/login", "/logout", "/signup")
                         .permitAll()
                 .antMatchers(HttpMethod.POST,"/user/accounts")
                         .anonymous()
