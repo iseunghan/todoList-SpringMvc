@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/header.html::fragment-header">
+    <link href="/css/login-style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<!-- Nav bar -->
+<div th:replace="/fragments/nav.html :: fragment-navbar">
+</div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <label for="input-login-username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="input-login-username" placeholder="Username" required
+                   onkeydown="login(event)">
+            <div class="valid-feedback">
+                Looks Good!
+            </div>
+            <div class="invalid-feedback">
+                Please provide a valid username
+            </div>
+            <label for="input-login-password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="input-login-password" placeholder="Password" required
+                   onkeydown="login(event)">
+            <div class="valid-feedback">
+                Looks Good!
+            </div>
+            <div class="invalid-feedback">
+                Please provide a valid password
+            </div>
+            <div class="row justify-content-center">
+                <button type="button" class="btn btn-primary" id="btn-login" onclick="login(event)">로그인</button>
+
+                <button type="button" class="btn btn-outline-info" id="btn-join" onclick="location.href='/signup'">
+                    회원가입
+                </button>
+            </div>
+            <div class="row justify-content-center" id="find-wrap">
+                <a id="a-findUsername" href="#">아이디 찾기</a>
+                <span class="bar" aria-hidden="true">|</span>
+                <a id="a-findPW" href="#">비밀번호 찾기</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/login.js"></script>
+</body>
+</html>

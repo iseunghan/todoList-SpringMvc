@@ -1,42 +1,20 @@
-/**
- * < ajax 주요 속성 >
- *
- * id값을 매핑할땐, $('#id값') 이런식으로 한다.
- * $('#btn').click(function(){
- *     $.ajax({
- *        url: 'url',           // 전송할 url
- *        dataType: 'json',     // 서버가 리턴하는 데이터의 타입
- *        type: 'POST',         // 서버로 전송할 메소드 타입
- *        contentType: 'application/json; charset=utf-8', // 서버로 전송할 데이터의 타입
- *        data: {               // 서버로 보낼 데이터 (현재는 json형식)
- *            title: $('#input-title').val()
- *        },
- *
- *        success: function(result){
- *            성공 시 타게되는 success 함수
- *        },
- *        fail: function(result){
- *            실패 시 타게되는 fail 함수
- *        }
- *     });
- * }
- */
-
 
 $(function () {
-    var $todos = $('.ajax-todo-lists');
-    var $userid = document.getElementById('todo_title').getAttribute('userid');
-    console.log('userId: ' + $userid + '의 할일 리스트입니다.');
+    const $todos = $('.list-group');
+    const $userName = $('#user').text();
+    const $baseURL = "/user/accounts/" + $userName + "/todolist";
 
-    var todoTemplate = "" +
-        "<li li-data-id={{id}}>" +
+     console.log('username: ' + $userName + '의 할일 리스트입니다.');
+
+    const todoTemplate = "" +
+        "<li class=\"list-group-item\" li-data-id={{id}}>" +
         "{{title}}" +
         "<span class=\"delete\" data-id={{id}}>✘</span>" +
         "</li>" +
         "";
 
-    var todoTemplate2 = "" +
-        "<li class=\"checked\" li-data-id={{id}}>" +
+    const todoTemplate2 = "" +
+        "<li class=\"list-group-item checked\" li-data-id={{id}}>" +
         "{{title}}" +
         "<span class=\"delete\" data-id={{id}}>✘</span>" +
         "</li>" +
@@ -44,47 +22,89 @@ $(function () {
 
     // Mustache 템플릿 엔진을 사용해서 html 코드 생성을 한다.
     function addTodo(todo) {
-        if (todo.status == 'NEVER') {
+        if (todo.status === 'NEVER') {
             $todos.append(Mustache.render(todoTemplate, todo));
         } else {
             $todos.append(Mustache.render(todoTemplate2, todo));
         }
     }
 
-    /**
-     * by.승한 - 홈 화면에 할일목록을 뿌려주기 위해 GET 방식으로 ajax 통신을 합니다.
-     *
-     *  처음 홈 화면에 접속했을 때, ajax통신으로 서버에서 받은 응답 본문에 있는 json형태의
-     *  할일 리스트를 for문으로 돌면서 Mustache 템플릿 엔진에게 넘겨줍니다.
-     *
-     */
+    /* Pagination Code */
+    const $pagination = $('.pagination');
+    const pageTemplate =
+        "<li class=\"{{first_btn_class}}\"><button class=\"page-link\" id='first-btn' href=\"{{first_link}}\"><<</button></li>\n" +
+        "<li class=\"{{prev_btn_class}}\"><button class=\"page-link\" id='prev-btn' href=\"{{prev_link}}\"><</button></li>\n" +
+        "<li class=\"page-item active\"><button class=\"page-link here\" href=\"#\">{{number}}</button></li>\n" +
+        "<li class=\"{{next_btn_class}}\"><button class=\"page-link\" id='next-page' href=\"{{next_link}}\">></button></li>" +
+        "<li class=\"{{last_btn_class}}\"><button class=\"page-link\" id='last-page' href=\"{{last_link}}\">>></button></li>";
+
+    function addPagination(pageObject) {
+        console.log("[page] : ", pageObject);
+
+        // make link
+        pageObject.first_link = $baseURL;
+        pageObject.prev_link = $baseURL + '?page=' + (pageObject.number + 1);
+        pageObject.next_link = $baseURL + '?page=' + (pageObject.totalPages - 1);
+
+        if(pageObject.number > 0) {
+            pageObject.prev_link = $baseURL + '?page=' + (pageObject.number - 1);
+        } else {
+            pageObject.prev_btn_class = 'page-item disabled';
+        }
+
+        if(pageObject.number < pageObject.totalPages - 1) {
+            pageObject.next_link = $baseURL + '?page=' + (pageObject.number + 1);
+        } else {
+            pageObject.next_btn_class = 'page-item disabled';
+        }
+
+        pageObject.first_btn_class = 'page-item';
+        pageObject.last_btn_class = 'page-item';
+
+        // disable btn
+        if(pageObject.first) {
+            pageObject.first_btn_class = "page-item disabled";
+        }
+        if(pageObject.last) {
+            pageObject.last_btn_class = "page-item disabled";
+        }
+
+        $pagination.append(Mustache.render(pageTemplate, pageObject));
+    }
+
+    // init
     $.ajax({
         type: 'GET', // default 값이 GET
-        url: 'http://localhost:8080/user/' + $userid + '/todoLists',
+        url: $baseURL,
 
         //서버의 응답데이터가 클라이언트에게 도착하면 자동으로 실행되는함수(콜백)
         success: function (result) {	// 꼭 result로 설정하는건 아니고, 내가 맘대로 정해줘도 된다!!
-            var todoLists = result._embedded.todoResourceList;
+            console.log("success");
+            var todoList = result.content;
+            console.log(result);
 
-            for (var i = 0; i < todoLists.length; i++) {
-                addTodo(todoLists[i]);  // 함수로 넘기면 알아서 템플릿이 처리해줌.
+            for (var i = 0; i < todoList.length; i++) {
+                addTodo(todoList[i]);  // 함수로 넘기면 알아서 템플릿이 처리해줌.
             }
+            // let linkObject = result._links;
+            // let pageObject = result.page;
+            let pageObject = {
+                first: result.first,
+                last: result.last,
+                number: result.number,
+                totalPages: result.totalPages
+            }
+            addPagination(pageObject);
+        }, error: function (a, b, c) {
+//            console.log(a, b, c);
         }
     });
 
-    /**
-     *  by.승한 - 할일을 추가하기 위해 버튼을 클릭하면, POST 방식으로 ajax 통신을 합니다.
-     *
-     *  입력받은 할일을 json 형태로 변환하여 서버로 보냅니다.
-     *  서버에서는 application/json 형태로 응답이 오게 됩니다.
-     *  응답 본문에 실린 todoItem 객체를 Mustache 템플릿에게 넘겨줍니다.
-     *
-     */
     $('#add-btn').click(function () {
 
         if (validateForm()) {
             $.ajax({
-                url: 'http://localhost:8080/user/' + $userid + '/todoLists',
+                url: $baseURL,
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -105,7 +125,54 @@ $(function () {
         }
     });
 
-    var keydown = false;    // 중복 발생 방지하기 위한 변수
+    // page link 이동
+    $(document).on('click', '.page-link', function (e) {
+        e.preventDefault();
+        console.log("-> " + $(this).attr('href'));
+        const $url = $(this).attr('href');
+        if($url === '' || $url === '#' || $url === undefined) return;
+
+        $.ajax({
+            url: $url,
+            type: 'GET',
+            contentType: 'application/json',
+
+            success: function (result) {
+                // area remove
+                const $_list_group = document.getElementById('list-group');
+                const $_pagination = document.getElementById('pagination');
+
+                while($_list_group.hasChildNodes()) {
+                    $_list_group.removeChild($_list_group.firstChild);
+                }
+                while($_pagination.hasChildNodes()) {
+                    $_pagination.removeChild($_pagination.firstChild);
+                }
+
+//                console.log("success");
+                var todoList = result.content;
+                console.log(result);
+
+                for (var i = 0; i < todoList.length; i++) {
+                    addTodo(todoList[i]);  // 함수로 넘기면 알아서 템플릿이 처리해줌.
+                }
+                // let linkObject = result._links;
+                // let pageObject = result.page;
+                let pageObject = {
+                    first: result.first,
+                    last: result.last,
+                    number: result.number,
+                    totalPages: result.totalPages
+                }
+                addPagination(pageObject);
+            },
+            fail: function (result) {
+                alert('통신 실패');
+            }
+        });
+    });
+
+    let keydown = false;    // 중복 발생 방지하기 위한 변수
     const $input = document.getElementById('input-title');
     $input.addEventListener('keydown', function (e) {
         if (keydown) return;
@@ -114,7 +181,7 @@ $(function () {
             if (e.key == 'Enter' && validateForm()) {
                 keydown = true;     // 엔터키가 눌렸고, 빈칸 체크도 완료했을 때, true로 값을 줘서 중복 실행 방지!
                 $.ajax({
-                    url: 'http://localhost:8080/user/' + $userid + '/todoLists',
+                    url: $baseURL,
                     type: 'POST',
                     dataType: 'json',
                     contentType: 'application/json',
@@ -149,16 +216,17 @@ $(function () {
         var $li = $(this).closest('li');
 
         /* 삭제버튼 이벤트 발생요소가 현재 요소인지 체크 */
-        if(e.target == $(this).get(0)) {
+        if(e.target === $(this).get(0)) {
 
             $.ajax({
-                url: 'http://localhost:8080/user/' + $userid + '/todoLists' + '/' + $(this).attr('li-data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
+                url: $baseURL + '/' + $(this).attr('li-data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
                 type: 'PATCH',
 
                 success: function (result) {
-                    var stat = result.status == 'NEVER' ? 'NEVER' : 'DONE';
+                    var stat = result.status === 'NEVER' ? 'NEVER' : 'DONE';
                     console.log(result.title + '의 할일상태가 ' + stat + '으로 변경되었습니다.');
                     $li.toggleClass('checked');
+//                    $li.toggleClass('active');
                 },
                 error: function (result) {
                     // alert('통신 실패');
@@ -178,7 +246,7 @@ $(function () {
         var $li = $(this).closest('li');
 
         $.ajax({
-            url: 'http://localhost:8080/user/' + $userid + '/todoLists' + '/' + $(this).attr('data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
+            url: $baseURL + '/' + $(this).attr('data-id'), // 여기서 아까 저장한 변수를 이용해 url 생성
             type: 'DELETE',
 
             success: function (result) {
@@ -207,4 +275,8 @@ function validateForm() {
         return false;
     }
     return true;
+}
+
+function removeChild(e) {
+    console.log(e.hasChildNodes());
 }

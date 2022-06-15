@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>🗒To-do List</title>
+</head>
+
+<body>
+<!-- Navigation-->
+<nav class="navbar navbar-light bg-light static-top">
+    <div class="container">
+        <a class="navbar-brand" href="#!">✅ Todo List</a>
+
+        <div sec:authorize="isAuthenticated()">
+            <a class="btn btn-primary" href="#"><span sec:authentication="name" id="user"></span></a>
+            <a class="btn btn-danger" href="/logout">Logout</a>
+        </div>
+    </div>
+</nav>
+<nav class="container">
+    <div class="row justify-content-center" style="margin-top: 40px">
+        <div class="todo_title" id="todo_title"> <!--th:userid="${userid}"-->
+            <h1>✏️ To-do List</h1>
+        </div>
+    </div>
+
+    <!--  todos Input area  -->
+    <div class="row justify-content-center" style="margin-top: 40px">
+        <div class="input-group mb-3" style="height: 3rem;">
+            <input id="input-title" type="text" class="form-control" placeholder="할일을 적어보세요"
+                   aria-label="todos" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+                <button id="add-btn" class="btn btn-success" type="button">ADD</button>
+            </div>
+        </div>
+    </div>
+
+    <!--  todoList area  -->
+    <div class="row" style="margin-bottom: 50px;margin-top: 20px">
+        <div class="col-md-12">
+            <ul class="list-group" id="list-group">
+                <span>👇 여기 밑으로 할일이 추가가 됩니다.</span>
+                <!-- 여기에 할일이 <li>태그로 구분되어 추가됩니다 :) -->
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- body 태그가 끝나는 지점에 주로 위치 시킨다. -->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/mustache.min.js"></script>
+<script src="js/todoScript.js"></script>
+</body>
+<footer>
+    <div class="row justify-content-center">
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="pagination">
+                <!-- Pagination -->
+            </ul>
+        </nav>
+    </div>
+</footer>
+
+</html>

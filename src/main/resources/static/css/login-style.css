@@ -1,0 +1,29 @@
+#btn-login{
+    margin-top: 10px;
+    width: 100%;
+}
+
+#btn-join {
+    margin-top: 10px;
+    width: 100%;
+}
+
+#find-wrap {
+    margin-top: 10px;
+}
+
+#a-findUsername {
+    font-size: 14px;
+    color: #8e8e8e;
+}
+
+#a-findPW {
+    font-size: 14px;
+    color: #8e8e8e;
+}
+
+.bar {
+    margin: 0px 5px;
+    font-size: 14px;
+    color: #8e8e8e;
+}

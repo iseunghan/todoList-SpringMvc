@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="fragment-navbar">
+    <!-- Navigation-->
+    <nav class="navbar navbar-light bg-light static-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">✅ Todo List</a>
+            <!-- anonymous -->
+            <div sec:authorize="!isAuthenticated()">
+                <a class="btn btn-outline-primary" href="/login">Sign in</a>
+                <a class="btn btn-primary" href="/signup">Sign Up</a>
+            </div>
+            <!-- Logout btn -->
+            <div sec:authorize="isAuthenticated()">
+                <a class="btn btn-danger" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+</html>
