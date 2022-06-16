@@ -3,6 +3,7 @@ package me.iseunghan.todolist.service;
 import me.iseunghan.todolist.exception.TodoNotFoundException;
 import me.iseunghan.todolist.model.TodoStatus;
 import me.iseunghan.todolist.model.dto.AccountDto;
+import me.iseunghan.todolist.model.dto.CreateAccountRequest;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,24 +35,22 @@ public class TodoServiceTest {
     void setup() {
         System.out.println("================= START ===================");
 
-        AccountDto accountDto = AccountDto.builder()
-                .id(1L)
+        CreateAccountRequest request = CreateAccountRequest.builder()
                 .username("test")
                 .email("test@email.com")
                 .password("pass")
                 .nickname("test-nick")
                 .build();
 
-        AccountDto accountDto2 = AccountDto.builder()
-                .id(2L)
+        CreateAccountRequest request2 = CreateAccountRequest.builder()
                 .username("test2")
                 .email("test2@email.com")
                 .password("pass")
                 .nickname("test2-nick")
                 .build();
 
-        accountService.addAccount(accountDto);
-        accountService.addAccount(accountDto2);
+        accountService.addAccount(request);
+        accountService.addAccount(request2);
 
         for (int i = 0; i < 10; i++) {
             TodoItemDto todo = TodoItemDto.builder()
@@ -63,7 +62,7 @@ public class TodoServiceTest {
 
             this.todoItemDtos.add(todo);
 
-            TodoItemDto save = todoService.addTodo(accountDto.getUsername(), todo);
+            TodoItemDto save = todoService.addTodo(request.getUsername(), todo);
             savedTodoDtos.add(save);
         }
 

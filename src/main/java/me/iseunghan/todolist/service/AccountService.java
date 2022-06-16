@@ -8,6 +8,7 @@ import me.iseunghan.todolist.model.AccountAdapter;
 import me.iseunghan.todolist.model.AccountRole;
 import me.iseunghan.todolist.model.dto.AccountDto;
 import me.iseunghan.todolist.model.dto.AdminAccountDto;
+import me.iseunghan.todolist.model.dto.CreateAccountRequest;
 import me.iseunghan.todolist.model.dto.PublicAccountDto;
 import me.iseunghan.todolist.repository.AccountRepository;
 import org.springframework.data.domain.Page;
@@ -40,15 +41,15 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public Account addAccount(AccountDto accountDto) {
+    public Account addAccount(CreateAccountRequest request) {
         // check duplicate account
-        isDuplicateAccount(accountDto.getUsername());
+        isDuplicateAccount(request.getUsername());
 
         Account account = Account.builder()
-                .username(accountDto.getUsername())
-                .password(passwordEncoder.encode(accountDto.getPassword()))
-                .nickname(accountDto.getNickname())
-                .email(accountDto.getEmail())
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .nickname(request.getNickname())
+                .email(request.getEmail())
                 .roles(Set.of(AccountRole.USER))
                 .build();
 

@@ -2,6 +2,7 @@ package me.iseunghan.todolist.controller.user;
 
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.dto.AccountDto;
+import me.iseunghan.todolist.model.dto.CreateAccountRequest;
 import me.iseunghan.todolist.model.dto.PublicAccountDto;
 import me.iseunghan.todolist.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -38,10 +40,11 @@ public class UserAccountApiController {
     }
 
     @PostMapping("/accounts")
-    public ResponseEntity createAccount(@RequestBody AccountDto accountDto) {
-        Account account = accountService.addAccount(accountDto);
+    public ResponseEntity createAccount(@RequestBody
+                                        @Valid CreateAccountRequest request) {
+        Account account = accountService.addAccount(request);
 
-        URI uri = linkTo(methodOn(UserAccountApiController.class).createAccount(accountDto)).withSelfRel().toUri();
+        URI uri = linkTo(methodOn(UserAccountApiController.class).createAccount(request)).withSelfRel().toUri();
 
         return ResponseEntity.created(uri).body(account);
     }

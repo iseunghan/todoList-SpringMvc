@@ -3,11 +3,8 @@ package me.iseunghan.todolist.service;
 import me.iseunghan.todolist.exception.AccountNotFoundException;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.TodoItem;
-import me.iseunghan.todolist.model.dto.AdminAccountDto;
-import me.iseunghan.todolist.model.dto.PublicAccountDto;
-import me.iseunghan.todolist.model.dto.TodoItemDto;
+import me.iseunghan.todolist.model.dto.*;
 import me.iseunghan.todolist.model.TodoStatus;
-import me.iseunghan.todolist.model.dto.AccountDto;
 import me.iseunghan.todolist.repository.AccountRepository;
 import me.iseunghan.todolist.repository.TodoRepository;
 import org.junit.jupiter.api.*;
@@ -38,24 +35,22 @@ class AccountServiceTest {
     void setup() {
         System.out.println("================= START ===================");
 
-        AccountDto accountDto = AccountDto.builder()
-                .id(1L)
+        CreateAccountRequest request = CreateAccountRequest.builder()
                 .username("test")
                 .email("test@email.com")
                 .password("pass")
                 .nickname("test-nick")
                 .build();
 
-        AccountDto accountDto2 = AccountDto.builder()
-                .id(2L)
+        CreateAccountRequest request2 = CreateAccountRequest.builder()
                 .username("test2")
                 .email("test2@email.com")
                 .password("pass")
                 .nickname("test2-nick")
                 .build();
 
-        accountService.addAccount(accountDto);
-        accountService.addAccount(accountDto2);
+        accountService.addAccount(request);
+        accountService.addAccount(request2);
 
         for (int i = 0; i < 10; i++) {
             TodoItemDto todo = TodoItemDto.builder()
@@ -63,10 +58,10 @@ class AccountServiceTest {
                     .status(TodoStatus.NEVER)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
-                    .username(accountDto.getUsername())
+                    .username(request.getUsername())
                     .build();
 
-            todoService.addTodo(accountDto.getUsername(), todo);
+            todoService.addTodo(request.getUsername(), todo);
         }
 
         System.out.println("================= END ===================");

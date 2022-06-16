@@ -6,6 +6,7 @@ import me.iseunghan.todolist.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,7 +25,7 @@ public class UserTodoListApiController {
     private TodoService todoService;
 
     @GetMapping("/accounts/{username}/todolist")
-    public ResponseEntity findUserTodoList(@PageableDefault Pageable pageable, @PathVariable String username) {
+    public ResponseEntity findUserTodoList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable String username) {
         Page<TodoItemDto> todoItemDtoPage = todoService.findUserTodoList(pageable, username);
 
         return ResponseEntity.ok(todoItemDtoPage);
@@ -56,6 +57,15 @@ public class UserTodoListApiController {
         TodoItemDto todoItem = todoService.updateStatus(id);
 
         return ResponseEntity.ok(todoItem);
+    }
+
+    @DeleteMapping("/accounts/{username}/todolist/{id}")
+    public ResponseEntity deleteTodo(@PathVariable String username, @PathVariable Long id, Authentication authentication) {
+        isAuthenticate(authentication, username);
+
+        Long deleteId = todoService.deleteTodoItem(id);
+
+        return ResponseEntity.ok(deleteId);
     }
 
     private void isAuthenticate(Authentication authentication, String username) {

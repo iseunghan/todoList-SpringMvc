@@ -3,6 +3,7 @@ package me.iseunghan.todolist.controller.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.dto.AccountDto;
+import me.iseunghan.todolist.model.dto.CreateAccountRequest;
 import me.iseunghan.todolist.service.AccountService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -46,14 +47,14 @@ class UserAccountApiControllerTest {
 
         // set 3 Test User
         for (int i = 10; i < 13; i++) {
-            AccountDto dto = AccountDto.builder()
+            CreateAccountRequest request = CreateAccountRequest.builder()
                     .username("test" + i)
                     .nickname("nick" + i)
                     .email("test" + i + "@email.com")
                     .password("test" + i)
                     .build();
 
-            Account account = accountService.addAccount(dto);
+            Account account = accountService.addAccount(request);
             this.testAccounts.add(account);
         }
     }
