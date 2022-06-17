@@ -2,6 +2,8 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="/fragments/header.html::fragment-header">
+</head>
+<head>
     <link href="/css/login-style.css" rel="stylesheet" type="text/css">
 </head>
 
@@ -30,8 +32,8 @@
             <div class="invalid-feedback">
                 Please provide a valid password
             </div>
-            <div class="row justify-content-center" style="margin: 15px;">
-                <button type="button" class="btn btn-primary" id="btn-login" style="margin-right: 10px" onclick="login(event)">로그인</button>
+            <div class="row justify-content-center" style="margin-top: 15px;">
+                <button type="button" class="btn btn-primary" id="btn-login" onclick="login(event)">로그인</button>
 
                 <button type="button" class="btn btn-outline-info" id="btn-join" onclick="location.href='/signup'">
                     회원가입

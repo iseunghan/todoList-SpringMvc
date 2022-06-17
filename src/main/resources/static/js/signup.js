@@ -15,7 +15,6 @@ $(function () {
                 url: "/user/accounts",
                 method: 'POST',
                 data: jsonData,
-                data: jsonData,
                 contentType: 'application/json',
                 success: function (result) {
                     alert('회원가입을 환영합니다.');

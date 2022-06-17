@@ -2,6 +2,8 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="/fragments/header.html::fragment-header">
+</head>
+<head>
     <link href="/css/login-style.css" rel="stylesheet" type="text/css">
 </head>
 
@@ -51,46 +53,6 @@
         </div>
     </form>
 </div>
-<script>
-<!--    $(function () {-->
-
-<!--        $("form[ajax=true]").submit(function(e) {-->
-
-<!--            e.preventDefault();-->
-<!--            console.log(e, ", " , "hello");-->
-<!--        });-->
-<!--    });-->
-
-<!--    function signup() {-->
-<!--        let jsonData = JSON.stringify({-->
-<!--            username: $('#inputUsername').val(),-->
-<!--            email: $('#inputEmail').val(),-->
-<!--            nickname: $('#inputNickname').val(),-->
-<!--            password: $('#inputPassword').val(),-->
-<!--        });-->
-
-<!--        $.ajax({-->
-<!--            url: "/user/accounts",-->
-<!--            method: 'POST',-->
-<!--            data: jsonData,-->
-<!--            data: jsonData,-->
-<!--            contentType: 'application/json',-->
-<!--            success: function (result) {-->
-<!--                alert('회원가입을 환영합니다.');-->
-<!--                location.href = "/";-->
-<!--            },-->
-<!--            error: function (error) {-->
-<!--                if(error.status === 400) {-->
-<!--                    alert('중복된 username 입니다. 다시 시도해주세요.');-->
-<!--                } else if (error.status === 500) {-->
-<!--                    alert('필수값을 확인해주세요');-->
-<!--                } else {-->
-<!--                    alert('Server Error');-->
-<!--                }-->
-<!--            }-->
-<!--        });-->
-<!--    }-->
-</script>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"

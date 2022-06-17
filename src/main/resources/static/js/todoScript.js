@@ -258,8 +258,7 @@ $(function () {
                     totalPages: result.totalPages
                 }
                 addPagination(pageObject);
-            }, error: function (a, b, c) {
-    //            console.log(a, b, c);
+            }, error: function (xhr, data) {
             }
         });
     }
@@ -280,7 +279,7 @@ $(function () {
 
 function validateForm() {
     var title =  $('#input-title').val();
-    if (title == "" || title == null || title == " ") {
+    if (title === "" || title === null || title === " ") {
         alert("ℹ️ 빈칸을 입력할 수 없습니다.😅 다시 입력해 주세요.");
         return false;
     }
