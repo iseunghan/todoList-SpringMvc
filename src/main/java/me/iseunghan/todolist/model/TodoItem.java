@@ -39,7 +39,7 @@ public class TodoItem {
     @Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCOUNT_ID")
     private Account account;
 

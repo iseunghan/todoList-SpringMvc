@@ -1,19 +1,15 @@
 package me.iseunghan.todolist.controller;
 
-import org.springframework.security.core.Authentication;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
-public class HomeController {
-
-    @GetMapping("/home")
-    public String home(Authentication authentication) {
-        System.out.println("HELLO: " + authentication); // 정상
-
-        return "/todoList/user-page";
-    }
+public class HomeController implements ErrorController {
 
     @GetMapping("/login")
     public String loginPage() {
@@ -34,5 +30,26 @@ public class HomeController {
     @ResponseBody
     public String adminPage() {
         return "/todoList/admin-page";
+    }
+
+    @GetMapping("/error")
+    public String error(HttpServletRequest request) {
+        Integer errorCode = (Integer) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+
+        switch (errorCode){
+            case 401:
+                return "/todoList/unauthorized";
+            case 403:
+                return "/todoList/access-denied";
+            case 404:
+                return "/todoList/not-found";
+            default:
+                return "/todoList/server-error";
+        }
+    }
+
+    @Override
+    public String getErrorPath() {
+        return "/error";
     }
 }

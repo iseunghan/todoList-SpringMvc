@@ -1,14 +1,12 @@
 package me.iseunghan.todolist.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CreateAccountRequest {
