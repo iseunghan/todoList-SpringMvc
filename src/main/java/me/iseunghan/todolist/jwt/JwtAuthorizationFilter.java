@@ -3,11 +3,9 @@ package me.iseunghan.todolist.jwt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
@@ -31,8 +29,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     public JwtAuthorizationFilter(JwtTokenUtil jwtTokenUtil, AuthenticationManager authenticationManager) {
         super(authenticationManager);
-//        System.out.println("AUTH_HEADER: "+ AUTH_HEADER);
-//        System.out.println("AUTH_TYPE: " + AUTH_TYPE);
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
@@ -49,8 +45,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         }else {
             log.info("유효한 JWT 토큰이 존재하지 않습니다. URI: {}", request.getRequestURI());
         }
-
-        // TODO Spring Security Context에 Authenticate 객체 넣기. (role 관리)
 
         doFilter(request, response, chain);
     }

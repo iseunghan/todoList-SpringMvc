@@ -66,6 +66,7 @@ public class AccountService implements UserDetailsService {
                         .email(a.getEmail())
                         .nickname(a.getNickname())
                         .role(a.getRolesToString())
+                        .todoSize(a.getTodoList().size())
                         .build())
                 .collect(Collectors.toList());
 

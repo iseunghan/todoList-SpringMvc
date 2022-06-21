@@ -3,7 +3,9 @@ package me.iseunghan.todolist.controller;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -27,12 +29,11 @@ public class HomeController implements ErrorController {
     }
 
     @GetMapping("/admin")
-    @ResponseBody
     public String adminPage() {
         return "/todoList/admin-page";
     }
 
-    @GetMapping("/error")
+    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/error")
     public String error(HttpServletRequest request) {
         Integer errorCode = (Integer) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 

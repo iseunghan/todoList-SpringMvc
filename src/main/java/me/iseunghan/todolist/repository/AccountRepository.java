@@ -13,8 +13,8 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    @Query(value = "select a from Account a join fetch a.roles",
-            countQuery = "select count(a) from Account a join a.roles")
+    @Query(value = "select a from Account a join fetch a.roles join fetch a.todoList",
+            countQuery = "select count(a) from Account a join a.roles join a.todoList")
     Page<Account> findAll_ADMIN(Pageable pageable);
 
     @Query(value = "select a from Account a",

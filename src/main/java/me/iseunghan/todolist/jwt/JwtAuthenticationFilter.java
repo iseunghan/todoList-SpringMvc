@@ -78,7 +78,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
         String token = jwtTokenUtil.createToken(authentication);
-        System.out.println("TOKEN create: " + token);
         response.setHeader(AUTH_HEADER, AUTH_TYPE + " " + token);
 
         Cookie cookie = new Cookie(AUTH_HEADER, AUTH_TYPE + token);
@@ -92,7 +91,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        log.error("유저 정보가 일치하지 않습니다. USER: {}", failed.getMessage());
+        log.error("유저 정보가 일치하지 않습니다. Msg: {}", failed.getMessage());
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ErrorCode.UNAUTHORIZED.message);
     }
 }
