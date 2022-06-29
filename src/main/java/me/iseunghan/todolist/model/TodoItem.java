@@ -1,11 +1,8 @@
 package me.iseunghan.todolist.model;
 
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 import static lombok.Builder.Default;
 
@@ -17,7 +14,7 @@ import static lombok.Builder.Default;
 @Entity
 @Table(name = "TODO_ITEM")
 @ToString(exclude = "account")
-public class TodoItem {
+public class TodoItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,14 +27,6 @@ public class TodoItem {
     @Enumerated(value = EnumType.STRING)
     @Default
     private TodoStatus status = TodoStatus.NEVER;
-
-    @Column(name = "created_at")
-    @Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at")
-    @Default
-    private LocalDateTime updatedAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCOUNT_ID")
