@@ -34,17 +34,16 @@ class AdminAccountApiControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("content").exists())
-                .andExpect(jsonPath("content[0].username").exists())
-                .andExpect(jsonPath("content[0].email").exists())
-                .andExpect(jsonPath("content[0].nickname").exists())
-                .andExpect(jsonPath("content[0].role").exists())
-                .andExpect(jsonPath("pageable").exists())
+                .andExpect(jsonPath("[0].username").exists())
+                .andExpect(jsonPath("[0].email").exists())
+                .andExpect(jsonPath("[0].nickname").exists())
+                .andExpect(jsonPath("[0].role").exists())
+                .andExpect(jsonPath("[0].pageDto").exists())
         ;
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "USER")
     void USER는_모든_회원의_공개정보_외는_조회할_수없다_403() throws Exception {
         // when & then
         mockMvc.perform(get("/admin/accounts")

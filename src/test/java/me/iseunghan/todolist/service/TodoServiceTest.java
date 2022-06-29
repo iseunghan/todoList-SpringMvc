@@ -2,13 +2,12 @@ package me.iseunghan.todolist.service;
 
 import me.iseunghan.todolist.exception.TodoNotFoundException;
 import me.iseunghan.todolist.model.TodoStatus;
-import me.iseunghan.todolist.model.dto.AccountDto;
 import me.iseunghan.todolist.model.dto.CreateAccountRequest;
+import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
@@ -91,13 +90,11 @@ public class TodoServiceTest {
         int page_size = this.todoItemDtos.size() / size;
 
         // when
-        Page<TodoItemDto> pageResult = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
+        RetrieveTodoItemResponse result = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
 
         // then
-        List<TodoItemDto> content = pageResult.getContent();
-
-        assertEquals(pageResult.getTotalPages(), page_size);
-        assertEquals(pageResult.getContent().size(), size);
+        assertEquals(result.getPageable().getTotalPages(), page_size);
+        assertEquals(result.getTodoList(), size);
     }
 
     @Test

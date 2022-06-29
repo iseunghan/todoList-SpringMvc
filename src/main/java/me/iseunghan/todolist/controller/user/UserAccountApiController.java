@@ -4,9 +4,9 @@ import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.dto.AccountDto;
 import me.iseunghan.todolist.model.dto.CreateAccountRequest;
 import me.iseunghan.todolist.model.dto.PublicAccountDto;
+import me.iseunghan.todolist.model.dto.RetrieveAccountResponse;
 import me.iseunghan.todolist.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -27,7 +28,7 @@ public class UserAccountApiController {
 
     @GetMapping("/accounts")
     public ResponseEntity getAccount(@PageableDefault Pageable pageable) {
-        Page<PublicAccountDto> accounts = accountService.findAll_USER(pageable);
+        RetrieveAccountResponse<PublicAccountDto> accounts = accountService.findAll_USER(pageable);
 
         return ResponseEntity.ok(accounts);
     }

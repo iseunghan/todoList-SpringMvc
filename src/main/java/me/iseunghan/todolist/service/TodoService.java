@@ -6,17 +6,17 @@ import me.iseunghan.todolist.exception.TodoNotFoundException;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.TodoItem;
 import me.iseunghan.todolist.model.TodoStatus;
+import me.iseunghan.todolist.model.dto.PageDto;
+import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.repository.TodoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,8 +37,6 @@ public class TodoService {
         Account account = accountService.findMyAccount(username);
 
         TodoItem todo = modelMapper.map(todoitemDto, TodoItem.class);
-        todo.setCreatedAt(LocalDateTime.now());
-        todo.setUpdatedAt(LocalDateTime.now());
         todo.setStatus(TodoStatus.NEVER);
         todo.addAccount(account);
 
@@ -47,29 +45,47 @@ public class TodoService {
         return modelMapper.map(save, TodoItemDto.class);
     }
 
-    public Page<TodoItemDto> findAll(Pageable pageable) {
+    public RetrieveTodoItemResponse findAll(Pageable pageable) {
         Page<TodoItem> todoPage = todoRepository.findAll(pageable);
 
-        List<TodoItemDto> todoDtos = todoPage.getContent().stream()
-                .map(t -> modelMapper.map(t, TodoItemDto.class))
-                .collect(Collectors.toList());
-
-        return new PageImpl<TodoItemDto>(todoDtos, pageable, todoPage.getTotalElements());
+        return RetrieveTodoItemResponse.builder()
+                .todoList(todoPage.getContent().stream()
+                        .map(t -> {
+                            TodoItemDto dto = modelMapper.map(t, TodoItemDto.class);
+                            return dto;
+                        }).collect(Collectors.toList()))
+                .pageable(PageDto.builder()
+                        .number(todoPage.getNumber())
+                        .totalPages(todoPage.getTotalPages())
+                        .totalElements(todoPage.getTotalElements())
+                        .first(todoPage.isFirst())
+                        .last(todoPage.isLast())
+                        .build())
+                .build();
     }
 
     public Page<TodoItem> findAllFetchJoin(Pageable pageable) {
         return todoRepository.findAllByFetchJoin(pageable);
     }
 
-    public Page<TodoItemDto> findUserTodoList(Pageable pageable, String username) {
+    public RetrieveTodoItemResponse findUserTodoList(Pageable pageable, String username) {
 
-        Page<TodoItem> todoItemPage = todoRepository.findAllByUsername(username, pageable);
+        Page<TodoItem> todoPage = todoRepository.findAllByUsername(username, pageable);
 
-        List<TodoItemDto> dtos = todoItemPage.getContent().stream()
-                .map(t -> modelMapper.map(t, TodoItemDto.class))
-                .collect(Collectors.toList());
-
-        return new PageImpl<TodoItemDto>(dtos, pageable, todoItemPage.getTotalElements());
+        return RetrieveTodoItemResponse.builder()
+                .todoList(todoPage.getContent().stream()
+                        .map(t -> {
+                            TodoItemDto dto = modelMapper.map(t, TodoItemDto.class);
+                            return dto;
+                        }).collect(Collectors.toList()))
+                .pageable(PageDto.builder()
+                        .number(todoPage.getNumber())
+                        .totalPages(todoPage.getTotalPages())
+                        .totalElements(todoPage.getTotalElements())
+                        .first(todoPage.isFirst())
+                        .last(todoPage.isLast())
+                        .build())
+                .build();
     }
 
     public TodoItemDto findById(Long id) {
@@ -92,7 +108,6 @@ public class TodoService {
         } else {
             todoItem.setStatus(TodoStatus.NEVER);
         }
-        todoItem.setUpdatedAt(LocalDateTime.now());
 
         return modelMapper.map(todoItem, TodoItemDto.class);
     }

@@ -6,13 +6,9 @@ import me.iseunghan.todolist.exception.AccountNotFoundException;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.AccountAdapter;
 import me.iseunghan.todolist.model.AccountRole;
-import me.iseunghan.todolist.model.dto.AccountDto;
-import me.iseunghan.todolist.model.dto.AdminAccountDto;
-import me.iseunghan.todolist.model.dto.CreateAccountRequest;
-import me.iseunghan.todolist.model.dto.PublicAccountDto;
+import me.iseunghan.todolist.model.dto.*;
 import me.iseunghan.todolist.repository.AccountRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -57,34 +53,48 @@ public class AccountService implements UserDetailsService {
     }
 
     /* ADMIN_ROLE: 관리자가 모든 회원 정보 조회 */
-    public Page<AdminAccountDto> findAll_ADMIN(Pageable pageable) {
+    public RetrieveAccountResponse<AdminAccountDto> findAll_ADMIN(Pageable pageable) {
         Page<Account> accountPage = accountRepository.findAll_ADMIN(pageable);
 
-        List<AdminAccountDto> adminAccountDtoList = accountPage.getContent().stream()
-                .map(a -> AdminAccountDto.builder()
-                        .username(a.getUsername())
-                        .email(a.getEmail())
-                        .nickname(a.getNickname())
-                        .role(a.getRolesToString())
-                        .todoSize(a.getTodoList().size())
+        return RetrieveAccountResponse.<AdminAccountDto>builder()
+                .accountList(accountPage.getContent().stream()
+                        .map(a -> AdminAccountDto.builder()
+                                .username(a.getUsername())
+                                .email(a.getEmail())
+                                .nickname(a.getNickname())
+                                .role(a.getRolesToString())
+                                .todoSize(a.getTodoList().size())
+                                .build())
+                        .collect(Collectors.toList()))
+                .pageable(PageDto.builder()
+                        .number(accountPage.getNumber())
+                        .totalPages(accountPage.getTotalPages())
+                        .totalElements(accountPage.getTotalElements())
+                        .first(accountPage.isFirst())
+                        .last(accountPage.isLast())
                         .build())
-                .collect(Collectors.toList());
-
-        return new PageImpl<AdminAccountDto>(adminAccountDtoList, pageable, accountPage.getTotalElements());
+                .build();
     }
 
-    public Page<PublicAccountDto> findAll_USER(Pageable pageable) {
-        Page<Account> account = accountRepository.findAll_USER(pageable);
+    public RetrieveAccountResponse<PublicAccountDto> findAll_USER(Pageable pageable) {
+        Page<Account> accountPage = accountRepository.findAll_USER(pageable);
 
-        List<PublicAccountDto> publicAccountDtoList = account.getContent().stream()
-                .map(a -> PublicAccountDto.builder()
-                            .username(a.getUsername())
-                            .email(a.getEmail())
-                            .nickname(a.getNickname())
-                            .build())
-                .collect(Collectors.toList());
-
-        return new PageImpl<PublicAccountDto>(publicAccountDtoList, pageable, account.getTotalElements());
+        return RetrieveAccountResponse.<PublicAccountDto>builder()
+                .accountList(accountPage.getContent().stream()
+                        .map(a -> PublicAccountDto.builder()
+                                .username(a.getUsername())
+                                .email(a.getEmail())
+                                .nickname(a.getNickname())
+                                .build())
+                        .collect(Collectors.toList()))
+                .pageable(PageDto.builder()
+                        .number(accountPage.getNumber())
+                        .totalPages(accountPage.getTotalPages())
+                        .totalElements(accountPage.getTotalElements())
+                        .first(accountPage.isFirst())
+                        .last(accountPage.isLast())
+                        .build())
+                .build();
     }
 
     public Account findMyAccount(String username) {
@@ -111,10 +121,12 @@ public class AccountService implements UserDetailsService {
         Account account = accountRepository.findByUsernameWithTodoList(username)
                 .orElseThrow(() -> new AccountNotFoundException(username));
 
-        return new PublicAccountDto(account.getUsername(),
-                                    account.getEmail(),
-                                    account.getNickname(),
-                                    account.getTodoList().size());
+        return PublicAccountDto.builder()
+                .username(account.getUsername())
+                .email(account.getEmail())
+                .nickname(account.getNickname())
+                .todoSize(account.getTodoList().size())
+                .build();
     }
 
     @Transactional

@@ -1,10 +1,10 @@
 package me.iseunghan.todolist.controller.user;
 
 import me.iseunghan.todolist.exception.AccessDeniedException;
+import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -26,9 +27,9 @@ public class UserTodoListApiController {
 
     @GetMapping("/accounts/{username}/todolist")
     public ResponseEntity findUserTodoList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable String username) {
-        Page<TodoItemDto> todoItemDtoPage = todoService.findUserTodoList(pageable, username);
+        RetrieveTodoItemResponse response = todoService.findUserTodoList(pageable, username);
 
-        return ResponseEntity.ok(todoItemDtoPage);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/accounts/{username}/todolist/{id}")

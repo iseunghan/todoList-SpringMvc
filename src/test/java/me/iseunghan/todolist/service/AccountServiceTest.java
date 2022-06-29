@@ -2,21 +2,14 @@ package me.iseunghan.todolist.service;
 
 import me.iseunghan.todolist.exception.AccountNotFoundException;
 import me.iseunghan.todolist.model.Account;
-import me.iseunghan.todolist.model.TodoItem;
-import me.iseunghan.todolist.model.dto.*;
 import me.iseunghan.todolist.model.TodoStatus;
-import me.iseunghan.todolist.repository.AccountRepository;
-import me.iseunghan.todolist.repository.TodoRepository;
+import me.iseunghan.todolist.model.dto.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,8 +26,6 @@ class AccountServiceTest {
 
     @BeforeAll
     void setup() {
-        System.out.println("================= START ===================");
-
         CreateAccountRequest request = CreateAccountRequest.builder()
                 .username("test")
                 .email("test@email.com")
@@ -63,29 +54,24 @@ class AccountServiceTest {
 
             todoService.addTodo(request.getUsername(), todo);
         }
-
-        System.out.println("================= END ===================");
     }
 
     @Test
     void ADMIN은_모든_회원_정보를_조회할_수있다() {
         // when
-        Page<AdminAccountDto> accountPage = accountService.findAll_ADMIN(PageRequest.of(0, 5));
-
-        AdminAccountDto testAccount = accountPage.getContent().get(3);
+        RetrieveAccountResponse<AdminAccountDto> response = accountService.findAll_ADMIN(PageRequest.of(0, 5));
 
         // then
-        assertEquals(accountPage.getTotalElements(), 5);
-        assertEquals(testAccount.getUsername(), "test");
-        assertEquals(testAccount.getEmail(), "test@email.com");
-        assertEquals(testAccount.getNickname(), "test-nick");
+        assertEquals(response.getAccountList().get(3).getUsername(), "test");
+        assertEquals(response.getAccountList().get(3).getEmail(), "test@email.com");
+        assertEquals(response.getAccountList().get(3).getNickname(), "test-nick");
     }
 
     @Test
     void USER는_모든_회원의_public_정보를_조회할_수있다() {
         // when
-        Page<PublicAccountDto> accountPage = accountService.findAll_USER(PageRequest.of(0, 5));
-        PublicAccountDto testAccountDto = accountPage.getContent().get(3);
+        RetrieveAccountResponse<PublicAccountDto> response = accountService.findAll_USER(PageRequest.of(0, 5));
+        PublicAccountDto testAccountDto = response.getAccountList().get(3);
 
         // then
         assertEquals(testAccountDto.getUsername(), "test");
@@ -176,10 +162,10 @@ class AccountServiceTest {
         // given
 
         // when
-        Page<TodoItemDto> todoPage = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
+        RetrieveTodoItemResponse result = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
 
         // then
-        assertEquals(todoPage.getTotalElements(), 0);
+        assertEquals(result.getTodoList().size(), 0);
     }
 
     @Test
