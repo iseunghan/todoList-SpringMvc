@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.AlgorithmMismatchException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
+import me.iseunghan.todolist.exception.AccessDeniedException;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.AccountAdapter;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class JwtTokenUtil /*implements InitializingBean*/ {
+public class JwtTokenUtil {
 
     @Value("${jwt.config.secret}")
     private String secret;
@@ -75,5 +75,14 @@ public class JwtTokenUtil /*implements InitializingBean*/ {
                 .collect(Collectors.toList());
 
         return new UsernamePasswordAuthenticationToken(username, token, authorities);
+    }
+
+    public boolean isCorrectUsername(String token, String username) {
+        Authentication authentication = this.getAuthentication(token);
+        if (!authentication.getName().equals(username)) {
+            throw new AccessDeniedException(username);
+        }
+
+        return true;
     }
 }

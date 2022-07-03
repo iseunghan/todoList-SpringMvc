@@ -5,9 +5,6 @@ import lombok.*;
 import javax.validation.constraints.NotEmpty;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class CreateAccountRequest {
     @NotEmpty(message = "필수값을 입력해주세요.")

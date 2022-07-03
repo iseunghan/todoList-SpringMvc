@@ -8,6 +8,7 @@ import me.iseunghan.todolist.model.AccountAdapter;
 import me.iseunghan.todolist.model.AccountRole;
 import me.iseunghan.todolist.model.dto.*;
 import me.iseunghan.todolist.repository.AccountRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,6 +28,7 @@ public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -37,7 +38,7 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public Account addAccount(CreateAccountRequest request) {
+    public CreateAccountResponse addAccount(CreateAccountRequest request) {
         // check duplicate account
         isDuplicateAccount(request.getUsername());
 
@@ -49,7 +50,8 @@ public class AccountService implements UserDetailsService {
                 .roles(Set.of(AccountRole.USER))
                 .build();
 
-        return accountRepository.save(account);
+        Account save = accountRepository.save(account);
+        return modelMapper.map(save, CreateAccountResponse.class);
     }
 
     /* ADMIN_ROLE: 관리자가 모든 회원 정보 조회 */
@@ -97,9 +99,18 @@ public class AccountService implements UserDetailsService {
                 .build();
     }
 
-    public Account findMyAccount(String username) {
-        return accountRepository.findByUsername(username)
-                .orElseThrow(() -> new AccountNotFoundException(username));
+    public AccountDto findMyAccount(String username) {
+        Account account = findByUsername(username);
+
+        return AccountDto.builder()
+                .id(account.getId())
+                .username(account.getUsername())
+                .email(account.getEmail())
+                .password(account.getPassword())
+                .nickname(account.getNickname())
+                .roles(account.getRolesToString())
+                .todoList(null)
+                .build();
     }
 
     /* ADMIN_ROLE: 관리자가 특정 회원 정보 조회 */
@@ -130,34 +141,43 @@ public class AccountService implements UserDetailsService {
     }
 
     @Transactional
-    public Long updateAccount(String username, AccountDto accountDto) {
-        Account account = findMyAccount(username);
+    public Long updateAccount(String username, UpdateAccountRequest accountRequest) {
+        Account account = findByUsername(username);
 
-        if (accountDto.getUsername() != null) {
-            isDuplicateAccount(accountDto.getUsername());
-            account.setUsername(accountDto.getUsername());
+        if (accountRequest.getUsername() != null) {
+            isDuplicateAccount(accountRequest.getUsername());
+            account.setUsername(accountRequest.getUsername());
         }
-        if (accountDto.getPassword() != null) {
-            account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
+        if (accountRequest.getPassword() != null) {
+            account.setPassword(passwordEncoder.encode(accountRequest.getPassword()));
         }
-        if (accountDto.getEmail() != null) {
-            account.setEmail(accountDto.getEmail());
+        if (accountRequest.getEmail() != null) {
+            account.setEmail(accountRequest.getEmail());
         }
-        if (accountDto.getNickname() != null) {
-            account.setNickname(accountDto.getNickname());
+        if (accountRequest.getNickname() != null) {
+            account.setNickname(accountRequest.getNickname());
         }
 
         return account.getId(); // dirty checking!
     }
 
-    public void deleteAccount(String username) {
-        Account account = findMyAccount(username);
+    public Long deleteAccount(String username) {
+        Account account = findByUsername(username);
+
         accountRepository.delete(account);
+
+        return account.getId();
+    }
+
+    public Account findByUsername(String username) {
+        return accountRepository.findByUsername(username)
+                .orElseThrow(() -> new AccountNotFoundException(username));
     }
 
     public void isDuplicateAccount(String username) {
-        Optional<Account> account = accountRepository.findByUsername(username);
-
-        if (account.isPresent()) throw new AccountDuplicateException(username);
+        accountRepository.findByUsername(username)
+                .ifPresent(a -> {
+                    throw new AccountDuplicateException(username);
+                });
     }
 }

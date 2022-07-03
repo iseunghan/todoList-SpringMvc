@@ -1,6 +1,5 @@
 package me.iseunghan.todolist.controller.admin;
 
-import me.iseunghan.todolist.model.dto.AccountDto;
 import me.iseunghan.todolist.model.dto.AdminAccountDto;
 import me.iseunghan.todolist.model.dto.RetrieveAccountResponse;
 import me.iseunghan.todolist.service.AccountService;
@@ -10,7 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -33,17 +32,10 @@ public class AdminAccountApiController {
         return ResponseEntity.ok(accountDto);
     }
 
-    @PatchMapping("/accounts/{username}")
-    public ResponseEntity updateAccount(@PathVariable String username, @RequestBody AccountDto accountDto) {
-        Long id = accountService.updateAccount(username, accountDto);
-
-        return ResponseEntity.ok(id);
-    }
-
     @DeleteMapping("/accounts/{username}")
     public ResponseEntity deleteAccount(@PathVariable String username) {
-        accountService.deleteAccount(username);
+        Long id = accountService.deleteAccount(username);
 
-        return ResponseEntity.ok().body("Accept");
+        return ResponseEntity.ok(Map.of("id", id));
     }
 }

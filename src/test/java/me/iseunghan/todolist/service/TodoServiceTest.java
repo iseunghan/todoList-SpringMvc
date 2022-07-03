@@ -94,7 +94,7 @@ public class TodoServiceTest {
 
         // then
         assertEquals(result.getPageable().getTotalPages(), page_size);
-        assertEquals(result.getTodoList(), size);
+        assertEquals(result.getTodoList().size(), size);
     }
 
     @Test

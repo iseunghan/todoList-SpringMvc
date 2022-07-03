@@ -1,6 +1,6 @@
 package me.iseunghan.todolist.controller.user;
 
-import me.iseunghan.todolist.exception.AccessDeniedException;
+import me.iseunghan.todolist.jwt.JwtTokenUtil;
 import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.service.TodoService;
@@ -9,11 +9,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
-import java.util.List;
+import java.util.Map;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -25,16 +25,20 @@ public class UserTodoListApiController {
     @Autowired
     private TodoService todoService;
 
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
     @GetMapping("/accounts/{username}/todolist")
-    public ResponseEntity findUserTodoList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable String username) {
+    public ResponseEntity findUserTodoList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable String username, HttpServletRequest request) {
+        jwtTokenUtil.getAuthentication(request.getHeader("Authorization"));
         RetrieveTodoItemResponse response = todoService.findUserTodoList(pageable, username);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity findUserTodo(@PathVariable String username, @PathVariable Long id, Authentication authentication) {
-        isAuthenticate(authentication, username);
+    public ResponseEntity findUserTodo(@PathVariable String username, @PathVariable Long id, HttpServletRequest request) {
+        jwtTokenUtil.getAuthentication(request.getHeader("Authorization"));
 
         TodoItemDto todoItemDto = todoService.findById(id);
 
@@ -42,18 +46,18 @@ public class UserTodoListApiController {
     }
 
     @PostMapping("/accounts/{username}/todolist")
-    public ResponseEntity addTodo(@PathVariable String username, @RequestBody TodoItemDto todoItemDto, Authentication authentication) {
-        isAuthenticate(authentication, username);
+    public ResponseEntity addTodo(@PathVariable String username, @RequestBody TodoItemDto todoItemDto, HttpServletRequest request) {
+        jwtTokenUtil.isCorrectUsername(request.getHeader("Authorization"), username);
 
         TodoItemDto result = todoService.addTodo(username, todoItemDto);
-        URI uri = linkTo(methodOn(UserTodoListApiController.class).addTodo(username, todoItemDto, authentication)).withSelfRel().toUri();
+        URI uri = linkTo(methodOn(UserTodoListApiController.class).addTodo(username, todoItemDto, request)).withSelfRel().toUri();
 
         return ResponseEntity.created(uri).body(result);
     }
 
     @PatchMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity updateTodo(@PathVariable String username, @PathVariable Long id, Authentication authentication) {
-        isAuthenticate(authentication, username);
+    public ResponseEntity updateTodo(@PathVariable String username, @PathVariable Long id, HttpServletRequest request) {
+        jwtTokenUtil.isCorrectUsername(request.getHeader("Authorization"), username);
 
         TodoItemDto todoItem = todoService.updateStatus(id);
 
@@ -61,16 +65,12 @@ public class UserTodoListApiController {
     }
 
     @DeleteMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity deleteTodo(@PathVariable String username, @PathVariable Long id, Authentication authentication) {
-        isAuthenticate(authentication, username);
+    public ResponseEntity deleteTodo(@PathVariable String username, @PathVariable Long id, HttpServletRequest request) {
+        jwtTokenUtil.isCorrectUsername(request.getHeader("Authorization"), username);
 
         Long deleteId = todoService.deleteTodoItem(id);
 
-        return ResponseEntity.ok(deleteId);
+        return ResponseEntity.ok(Map.of("id", deleteId));
     }
 
-    private void isAuthenticate(Authentication authentication, String username) {
-        if(!authentication.getName().equals(username))
-            throw new AccessDeniedException(username);
-    }
 }

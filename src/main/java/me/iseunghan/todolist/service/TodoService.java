@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class TodoService {
             throw new NotEmptyException(todoitemDto.getId());
         }
 
-        Account account = accountService.findMyAccount(username);
+        Account account = accountService.findByUsername(username);
 
         TodoItem todo = modelMapper.map(todoitemDto, TodoItem.class);
         todo.setStatus(TodoStatus.NEVER);

@@ -1,7 +1,6 @@
 package me.iseunghan.todolist.service;
 
 import me.iseunghan.todolist.exception.AccountNotFoundException;
-import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.TodoStatus;
 import me.iseunghan.todolist.model.dto.*;
 import org.junit.jupiter.api.*;
@@ -57,6 +56,24 @@ class AccountServiceTest {
     }
 
     @Test
+    void 회원을_저장할_수있다() {
+        // given
+        CreateAccountRequest request = CreateAccountRequest.builder()
+                .username("testUser")
+                .email("testUser@email.com")
+                .password("password")
+                .nickname("nickname")
+                .build();
+
+        // when
+        CreateAccountResponse response = accountService.addAccount(request);
+
+        // then
+        assertEquals(response.getUsername(), request.getUsername());
+        assertEquals(response.getEmail(), request.getEmail());
+    }
+
+    @Test
     void ADMIN은_모든_회원_정보를_조회할_수있다() {
         // when
         RetrieveAccountResponse<AdminAccountDto> response = accountService.findAll_ADMIN(PageRequest.of(0, 5));
@@ -94,7 +111,7 @@ class AccountServiceTest {
     @Test
     void USER는_자신의_account_조회할_수있다() {
         // when
-        Account account = accountService.findMyAccount("test");
+        AccountDto account = accountService.findMyAccount("test");
 
         // then
         assertEquals(account.getUsername(), "test");
@@ -102,6 +119,7 @@ class AccountServiceTest {
         assertEquals(account.getEmail(), "test@email.com");
         assertEquals(account.getNickname(), "test-nick");
     }
+
     @Test
     void USER는_하나의_public_account_조회할_수있다() {
         // when
@@ -126,7 +144,7 @@ class AccountServiceTest {
     @Test
     void account_수정할_수있다() {
         // given
-        AccountDto accountDto = AccountDto.builder()
+        UpdateAccountRequest request = UpdateAccountRequest.builder()
                 .username("test3")
                 .password("pass3")
                 .email("test3@email.com")
@@ -134,7 +152,7 @@ class AccountServiceTest {
                 .build();
 
         // when
-        Long id = accountService.updateAccount("test2", accountDto);
+        Long id = accountService.updateAccount("test2", request);
 
         // then
         assertNotNull(id);

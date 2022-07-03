@@ -1,9 +1,10 @@
 package me.iseunghan.todolist.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.iseunghan.todolist.model.Account;
+import me.iseunghan.todolist.jwt.JwtTokenUtil;
 import me.iseunghan.todolist.model.dto.AccountDto;
 import me.iseunghan.todolist.model.dto.CreateAccountRequest;
+import me.iseunghan.todolist.model.dto.CreateAccountResponse;
 import me.iseunghan.todolist.service.AccountService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,7 +41,10 @@ class UserAccountApiControllerTest {
     @Autowired
     private AccountService accountService;
 
-    private List<Account> testAccounts;
+    @MockBean
+    private JwtTokenUtil jwtTokenUtil;
+
+    private List<CreateAccountResponse> testAccounts;
 
     @BeforeAll
     void setup() {
@@ -53,8 +60,8 @@ class UserAccountApiControllerTest {
                     .password("test" + i)
                     .build();
 
-            Account account = accountService.addAccount(request);
-            this.testAccounts.add(account);
+            CreateAccountResponse response = accountService.addAccount(request);
+            this.testAccounts.add(response);
         }
     }
 
@@ -75,7 +82,6 @@ class UserAccountApiControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("username").value(dto.getUsername()))
                 .andExpect(jsonPath("nickname").value(dto.getNickname()))
                 .andExpect(jsonPath("email").value(dto.getEmail()))
@@ -85,8 +91,11 @@ class UserAccountApiControllerTest {
     @Test
     @WithMockUser
     void USER는_모든_회원의_공개정보를_조회할_수있다() throws Exception {
+        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+
         // when & then
-        mockMvc.perform(get("/user/accounts"))
+        mockMvc.perform(get("/user/accounts")
+                        .header("Authorization", "Bearer 12345"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("accountList[0].username").exists())
@@ -98,10 +107,12 @@ class UserAccountApiControllerTest {
     @WithMockUser
     void USER_자신의_모든_정보를_조회할_수있다() throws Exception {
         // given
-        Account testAccount = this.testAccounts.get(0);
+        CreateAccountResponse testAccount = this.testAccounts.get(0);
+        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
 
         // when & then
-        mockMvc.perform(get("/user/accounts/{username}", testAccount.getUsername()))
+        mockMvc.perform(get("/user/accounts/{username}", testAccount.getUsername())
+                        .header("Authorization", "Bearer 12345"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -115,16 +126,18 @@ class UserAccountApiControllerTest {
     @WithMockUser
     void USER_회원_정보를_수정할_수있다() throws Exception {
         // given
-        Account testAccount = this.testAccounts.get(1);
+        CreateAccountResponse testAccount = this.testAccounts.get(1);
         AccountDto editDto = AccountDto.builder()
                 .username("editName")
                 .password("editPass")
                 .email("edit@email.com")
                 .nickname("editNick")
                 .build();
+        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
 
         // when & then
         mockMvc.perform(patch("/user/accounts/{username}", testAccount.getUsername())
+                        .header("Authorization", "Bearer 12345")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(editDto)))
                 .andDo(print())
@@ -136,10 +149,12 @@ class UserAccountApiControllerTest {
     @WithMockUser
     void USER_자신의_계정을_삭제할_수있다() throws Exception {
         // given
-        Account testAccount = this.testAccounts.get(2);
+        CreateAccountResponse testAccount = this.testAccounts.get(2);
+        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
 
         // when & then
-        mockMvc.perform(delete("/user/accounts/{username}", testAccount.getUsername()))
+        mockMvc.perform(delete("/user/accounts/{username}", testAccount.getUsername())
+                        .header("Authorization", "Bearer 12345"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }

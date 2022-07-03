@@ -1,7 +1,6 @@
 package me.iseunghan.todolist.model.dto;
 
 import lombok.*;
-import me.iseunghan.todolist.model.TodoItem;
 
 import java.util.List;
 
@@ -22,6 +21,8 @@ public class AccountDto {
 
     private String email;
 
-    private List<TodoItem> todoList;
+    private String roles;
+
+    private List<TodoItemDto> todoList;
 
 }
