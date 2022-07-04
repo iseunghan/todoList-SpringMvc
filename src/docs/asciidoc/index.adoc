@@ -1,0 +1,15 @@
+= TodoApp REST API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+include::{docdir}/admin_Account_Api.adoc[]
+
+include::{docdir}/admin_Todo_Api.adoc[]
+
+include::{docdir}/user_Account_Api.adoc[]
+
+include::{docdir}/user_Todo_Api.adoc[]

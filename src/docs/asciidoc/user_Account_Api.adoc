@@ -1,0 +1,70 @@
+ifndef::snippets[]
+:snippets: ../../build/generated-snippets
+endif::[]
+
+== User Account API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+=== 회원 추가
+==== Request
+include::{snippets}/user-account-api-docs-test/add-account/http-request.adoc[]
+include::{snippets}/user-account-api-docs-test/add-account/request-body.adoc[]
+include::{snippets}/user-account-api-docs-test/add-account/request-fields.adoc[]
+
+==== Response
+include::{snippets}/user-account-api-docs-test/add-account/http-response.adoc[]
+include::{snippets}/user-account-api-docs-test/add-account/response-body.adoc[]
+include::{snippets}/user-account-api-docs-test/add-account/response-fields.adoc[]
+
+=== 다른 회원의 공개 정보 조회
+==== Request
+include::{snippets}/user-account-api-docs-test/retrieve_-any_-public-account/http-request.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-any_-public-account/request-headers.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-any_-public-account/request-body.adoc[]
+
+==== Response
+include::{snippets}/user-account-api-docs-test/retrieve_-any_-public-account/http-response.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-any_-public-account/response-body.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-any_-public-account/response-fields.adoc[]
+
+=== 나의 회원 정보 조회
+==== Request
+include::{snippets}/user-account-api-docs-test/retrieve_-my_-account/http-request.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-my_-account/request-headers.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-my_-account/path-parameters.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-my_-account/request-body.adoc[]
+
+==== Response
+include::{snippets}/user-account-api-docs-test/retrieve_-my_-account/http-response.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-my_-account/response-body.adoc[]
+include::{snippets}/user-account-api-docs-test/retrieve_-my_-account/response-fields.adoc[]
+
+=== 나의 회원 정보 수정
+==== Request
+include::{snippets}/user-account-api-docs-test/update_-account/http-request.adoc[]
+include::{snippets}/user-account-api-docs-test/update_-account/request-headers.adoc[]
+include::{snippets}/user-account-api-docs-test/update_-account/path-parameters.adoc[]
+include::{snippets}/user-account-api-docs-test/update_-account/request-body.adoc[]
+include::{snippets}/user-account-api-docs-test/update_-account/request-fields.adoc[]
+
+==== Response
+include::{snippets}/user-account-api-docs-test/update_-account/http-response.adoc[]
+include::{snippets}/user-account-api-docs-test/update_-account/response-body.adoc[]
+include::{snippets}/user-account-api-docs-test/update_-account/response-fields.adoc[]
+
+=== 나의 아이디 삭제
+==== Request
+include::{snippets}/user-account-api-docs-test/delete_-my_-account/http-request.adoc[]
+include::{snippets}/user-account-api-docs-test/delete_-my_-account/request-headers.adoc[]
+include::{snippets}/user-account-api-docs-test/delete_-my_-account/path-parameters.adoc[]
+include::{snippets}/user-account-api-docs-test/delete_-my_-account/request-body.adoc[]
+
+==== Response
+include::{snippets}/user-account-api-docs-test/delete_-my_-account/http-response.adoc[]
+include::{snippets}/user-account-api-docs-test/delete_-my_-account/response-body.adoc[]
+include::{snippets}/user-account-api-docs-test/delete_-my_-account/response-fields.adoc[]

@@ -1,0 +1,21 @@
+ifndef::snippets[]
+:snippets: ../../build/generated-snippets
+endif::[]
+
+== ADMIN TodoList API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+=== 모든 할일 조회
+==== Request
+include::{snippets}/admin-todo-list-api-docs-test/retrieve_-all_-todo-list/http-request.adoc[]
+include::{snippets}/admin-todo-list-api-docs-test/retrieve_-all_-todo-list/request-headers.adoc[]
+
+==== Response
+include::{snippets}/admin-todo-list-api-docs-test/retrieve_-all_-todo-list/http-response.adoc[]
+include::{snippets}/admin-todo-list-api-docs-test/retrieve_-all_-todo-list/response-body.adoc[]
+include::{snippets}/admin-todo-list-api-docs-test/retrieve_-all_-todo-list/response-fields.adoc[]

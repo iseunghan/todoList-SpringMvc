@@ -1,0 +1,72 @@
+ifndef::snippets[]
+:snippets: ../../build/generated-snippets
+endif::[]
+
+== User TodoList API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+=== 할일 생성
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/path-parameters.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/request-body.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/request-fields.adoc[]
+
+==== Response
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/response-body.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/response-fields.adoc[]
+
+=== 나의 모든 할일 조회
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/path-parameters.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/request-body.adoc[]
+
+==== Response
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/response-body.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/response-fields.adoc[]
+
+=== 하나의 할일 조회
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/path-parameters.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/request-body.adoc[]
+
+==== Response
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/response-body.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/response-fields.adoc[]
+
+=== 할일 수정
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/update-todo/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/update-todo/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/update-todo/path-parameters.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/update-todo/request-body.adoc[]
+
+==== Response
+include::{snippets}/user-todo-list-api-docs-test/update-todo/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/update-todo/response-body.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/update-todo/response-fields.adoc[]
+
+=== 할일 삭제
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/path-parameters.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/request-body.adoc[]
+
+==== Response
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/response-body.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/response-fields.adoc[]
