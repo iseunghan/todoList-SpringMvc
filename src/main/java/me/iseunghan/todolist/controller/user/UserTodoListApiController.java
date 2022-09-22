@@ -1,6 +1,7 @@
 package me.iseunghan.todolist.controller.user;
 
-import me.iseunghan.todolist.jwt.JwtTokenUtil;
+import me.iseunghan.todolist.common.AuthUtils;
+import me.iseunghan.todolist.common.LoginUser;
 import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.service.TodoService;
@@ -11,7 +12,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.Map;
 
@@ -25,20 +25,17 @@ public class UserTodoListApiController {
     @Autowired
     private TodoService todoService;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
     @GetMapping("/accounts/{username}/todolist")
-    public ResponseEntity findUserTodoList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable String username, HttpServletRequest request) {
-        jwtTokenUtil.getAuthentication(request.getHeader("Authorization"));
+    public ResponseEntity findUserTodoList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable String username, @LoginUser String loginUsername) {
+        AuthUtils.validationUsername(username, loginUsername);
         RetrieveTodoItemResponse response = todoService.findUserTodoList(pageable, username);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity findUserTodo(@PathVariable String username, @PathVariable Long id, HttpServletRequest request) {
-        jwtTokenUtil.getAuthentication(request.getHeader("Authorization"));
+    public ResponseEntity findUserTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
+        AuthUtils.validationUsername(username, loginUsername);
 
         TodoItemDto todoItemDto = todoService.findById(id);
 
@@ -46,18 +43,18 @@ public class UserTodoListApiController {
     }
 
     @PostMapping("/accounts/{username}/todolist")
-    public ResponseEntity addTodo(@PathVariable String username, @RequestBody TodoItemDto todoItemDto, HttpServletRequest request) {
-        jwtTokenUtil.isCorrectUsername(request.getHeader("Authorization"), username);
+    public ResponseEntity addTodo(@PathVariable String username, @RequestBody TodoItemDto todoItemDto, @LoginUser String loginUsername) {
+        AuthUtils.validationUsername(username, loginUsername);
 
         TodoItemDto result = todoService.addTodo(username, todoItemDto);
-        URI uri = linkTo(methodOn(UserTodoListApiController.class).addTodo(username, todoItemDto, request)).withSelfRel().toUri();
+        URI uri = linkTo(methodOn(UserTodoListApiController.class).addTodo(username, todoItemDto, loginUsername)).withSelfRel().toUri();
 
         return ResponseEntity.created(uri).body(result);
     }
 
     @PatchMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity updateTodo(@PathVariable String username, @PathVariable Long id, HttpServletRequest request) {
-        jwtTokenUtil.isCorrectUsername(request.getHeader("Authorization"), username);
+    public ResponseEntity updateTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
+        AuthUtils.validationUsername(username, loginUsername);
 
         TodoItemDto todoItem = todoService.updateStatus(id);
 
@@ -65,12 +62,11 @@ public class UserTodoListApiController {
     }
 
     @DeleteMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity deleteTodo(@PathVariable String username, @PathVariable Long id, HttpServletRequest request) {
-        jwtTokenUtil.isCorrectUsername(request.getHeader("Authorization"), username);
+    public ResponseEntity deleteTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
+        AuthUtils.validationUsername(username, loginUsername);
 
         Long deleteId = todoService.deleteTodoItem(id);
 
         return ResponseEntity.ok(Map.of("id", deleteId));
     }
-
 }

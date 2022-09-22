@@ -19,12 +19,6 @@ import java.util.Arrays;
 @Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    @Value("${jwt.config.auth_header}")
-    private String AUTH_HEADER;
-
-    @Value("${jwt.config.auth_type}")
-    private String AUTH_TYPE;
-
     private final JwtTokenUtil jwtTokenUtil;
 
     public JwtAuthorizationFilter(JwtTokenUtil jwtTokenUtil, AuthenticationManager authenticationManager) {
@@ -34,7 +28,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = extractToken(request);
+        String token = jwtTokenUtil.extractToken(request);
 
         // TODO token valid
         if (token != null && jwtTokenUtil.validateToken(token)) {
@@ -47,25 +41,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         }
 
         doFilter(request, response, chain);
-    }
-
-    private String extractToken(HttpServletRequest request) {
-        // find in Header
-        String header = request.getHeader(AUTH_HEADER);
-
-        if (StringUtils.hasText(header) && header.startsWith(AUTH_TYPE)) {
-            return header.replace(AUTH_TYPE, "").trim();
-        }
-
-        // find in Cookie
-        Cookie cookie = null;
-        if(request.getCookies() != null) {
-            cookie = Arrays.stream(request.getCookies()).filter(c -> c.getName().equals(AUTH_HEADER))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        return (cookie != null) ? cookie.getValue().replace(AUTH_TYPE, "").trim() : null;
     }
 
 }

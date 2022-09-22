@@ -1,6 +1,8 @@
 package me.iseunghan.todolist.controller.user;
 
-import me.iseunghan.todolist.jwt.JwtTokenUtil;
+import me.iseunghan.todolist.common.AuthUtils;
+import me.iseunghan.todolist.common.LoginUser;
+import me.iseunghan.todolist.common.ApiResponse;
 import me.iseunghan.todolist.model.dto.*;
 import me.iseunghan.todolist.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Map;
@@ -24,20 +25,16 @@ public class UserAccountApiController {
     @Autowired
     private AccountService accountService;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
     @GetMapping("/accounts")
-    public ResponseEntity getAccount(@PageableDefault Pageable pageable, HttpServletRequest request) {
-        jwtTokenUtil.getAuthentication(request.getHeader("Authorization"));
+    public ResponseEntity getAccount(@PageableDefault Pageable pageable) {
         RetrieveAccountResponse<PublicAccountDto> accounts = accountService.findAll_USER(pageable);
 
         return ResponseEntity.ok(accounts);
     }
 
     @GetMapping("/accounts/{username}")
-    public ResponseEntity getMyAccount(@PathVariable String username, HttpServletRequest request) {
-        jwtTokenUtil.getAuthentication(request.getHeader("Authorization"));
+    public ResponseEntity getMyAccount(@PathVariable String username, @LoginUser String loginUsername) {
+        AuthUtils.validationUsername(username, loginUsername);
         AccountDto dto = accountService.findMyAccount(username);
 
         return ResponseEntity.ok(dto);
@@ -54,16 +51,16 @@ public class UserAccountApiController {
     }
 
     @PatchMapping("/accounts/{username}")
-    public ResponseEntity updateAccount(@PathVariable String username, @RequestBody UpdateAccountRequest accountRequest, HttpServletRequest request) {
-        jwtTokenUtil.getAuthentication(request.getHeader("Authorization"));
+    public ResponseEntity updateAccount(@PathVariable String username, @RequestBody UpdateAccountRequest accountRequest, @LoginUser String loginUsername) {
+        AuthUtils.validationUsername(username, loginUsername);
         Long id = accountService.updateAccount(username, accountRequest);
 
         return ResponseEntity.ok(Map.of("id", id));
     }
 
     @DeleteMapping("/accounts/{username}")
-    public ResponseEntity deleteAccount(@PathVariable String username, HttpServletRequest request) {
-        jwtTokenUtil.getAuthentication(request.getHeader("Authorization"));
+    public ResponseEntity deleteAccount(@PathVariable String username, @LoginUser String loginUsername) {
+        AuthUtils.validationUsername(username, loginUsername);
         Long id = accountService.deleteAccount(username);
 
         return ResponseEntity.ok((Map.of("id", id)));

@@ -14,7 +14,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.util.StringUtils;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -30,7 +33,10 @@ public class JwtTokenUtil {
     private long expiration;
 
     @Value("${jwt.config.auth_header}")
-    private String tokenHeader;
+    private String AUTH_HEADER;
+
+    @Value("${jwt.config.auth_type}")
+    private String AUTH_TYPE;
 
     public String createToken(Authentication authentication) {
         AccountAdapter accountAdapter = (AccountAdapter) authentication.getPrincipal();
@@ -67,8 +73,33 @@ public class JwtTokenUtil {
         return false;
     }
 
+    public String extractToken(HttpServletRequest request) {
+        // find in Header
+        String header = request.getHeader(AUTH_HEADER);
+
+        if (StringUtils.hasText(header) && header.startsWith(AUTH_TYPE)) {
+            return header.replace(AUTH_TYPE, "").trim();
+        }
+
+        // find in Cookie
+        Cookie cookie = null;
+        if (request.getCookies() != null) {
+            cookie = Arrays.stream(request.getCookies())
+                    .filter(c -> c.getName().equals(AUTH_HEADER))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        return (cookie != null) ? cookie.getValue().replace(AUTH_TYPE, "").trim() : null;
+    }
+
+    // 이미 AuthorizationFilter를 거쳤기 때문에 따로 null 체크는 하지 않는다.
+    public String getUsernameFromToken(String token) {
+        return JWT.decode(token).getSubject();
+    }
+
     public Authentication getAuthentication(String token) {
-        String username = JWT.decode(token).getSubject();
+        String username = getUsernameFromToken(token);
 
         Collection<? extends SimpleGrantedAuthority> authorities = Arrays.stream(JWT.decode(token).getClaim("authorities").asString().split(","))
                 .map(SimpleGrantedAuthority::new)
@@ -78,8 +109,8 @@ public class JwtTokenUtil {
     }
 
     public boolean isCorrectUsername(String token, String username) {
-        Authentication authentication = this.getAuthentication(token);
-        if (!authentication.getName().equals(username)) {
+        String tokenUsername = getUsernameFromToken(token);
+        if (!tokenUsername.equals(username)) {
             throw new AccessDeniedException(username);
         }
 
