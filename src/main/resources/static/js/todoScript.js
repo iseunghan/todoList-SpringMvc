@@ -78,8 +78,11 @@ $(function () {
         //서버의 응답데이터가 클라이언트에게 도착하면 자동으로 실행되는함수(콜백)
         success: function (result) {	// 꼭 result로 설정하는건 아니고, 내가 맘대로 정해줘도 된다!!
 //            console.log("success");
-            var todoList = result.content;
-//            console.log(result);
+            const content = result.content;
+            const todoList = content.todoList;
+            const pageable = content.pageable;
+
+           console.log(result);
 
             for (var i = 0; i < todoList.length; i++) {
                 addTodo(todoList[i]);  // 함수로 넘기면 알아서 템플릿이 처리해줌.
@@ -87,10 +90,10 @@ $(function () {
             // let linkObject = result._links;
             // let pageObject = result.page;
             let pageObject = {
-                first: result.first,
-                last: result.last,
-                number: result.number,
-                totalPages: result.totalPages
+                first: pageable.first,
+                last: pageable.last,
+                number: pageable.number,
+                totalPages: pageable.totalPages
             }
             addPagination(pageObject);
         }, error: function (result) {
@@ -148,17 +151,19 @@ $(function () {
                     $_pagination.removeChild($_pagination.firstChild);
                 }
 
-                var todoList = result.content;
+                const content = result.content;
+                const todoList = content.todoList;
+                const pageable = content.pageable;
 
                 for (var i = 0; i < todoList.length; i++) {
                     addTodo(todoList[i]);  // 함수로 넘기면 알아서 템플릿이 처리해줌.
                 }
 
                 let pageObject = {
-                    first: result.first,
-                    last: result.last,
-                    number: result.number,
-                    totalPages: result.totalPages
+                    first: pageable.first,
+                    last: pageable.last,
+                    number: pageable.number,
+                    totalPages: pageable.totalPages
                 }
                 addPagination(pageObject);
             },
@@ -246,16 +251,18 @@ $(function () {
 
             //서버의 응답데이터가 클라이언트에게 도착하면 자동으로 실행되는함수(콜백)
             success: function (result) {	// 꼭 result로 설정하는건 아니고, 내가 맘대로 정해줘도 된다!!
-                var todoList = result.content;
+                const content = result.content;
+                const todoList = content.todoList;
+                const pageable = content.pageable;
 
                 for (var i = 0; i < todoList.length; i++) {
                     addTodo(todoList[i]);  // 함수로 넘기면 알아서 템플릿이 처리해줌.
                 }
                 let pageObject = {
-                    first: result.first,
-                    last: result.last,
-                    number: result.number,
-                    totalPages: result.totalPages
+                    first: pageable.first,
+                    last: pageable.last,
+                    number: pageable.number,
+                    totalPages: pageable.totalPages
                 }
                 addPagination(pageObject);
             }, error: function (xhr, data) {
