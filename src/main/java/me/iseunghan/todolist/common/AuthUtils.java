@@ -1,6 +1,7 @@
 package me.iseunghan.todolist.common;
 
 import me.iseunghan.todolist.exception.AccessDeniedException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
 
 public class AuthUtils {
 
@@ -11,7 +12,7 @@ public class AuthUtils {
      */
     public static void validationUsername(String username, String loginUsername) {
         if (!username.equals(loginUsername)) {
-            throw new AccessDeniedException(username);
+            throw new AccessDeniedException(ErrorCode.ACCESS_DENIED);
         }
     }
 }
