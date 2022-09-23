@@ -1,11 +1,12 @@
 package me.iseunghan.todolist.service;
 
 import lombok.RequiredArgsConstructor;
-import me.iseunghan.todolist.exception.NotEmptyException;
-import me.iseunghan.todolist.exception.TodoNotFoundException;
+import me.iseunghan.todolist.exception.NotFoundException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.TodoItem;
 import me.iseunghan.todolist.model.TodoStatus;
+import me.iseunghan.todolist.model.dto.CreateTodoItemRequest;
 import me.iseunghan.todolist.model.dto.PageDto;
 import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.stream.Collectors;
 
@@ -28,18 +28,17 @@ public class TodoService {
     private final ModelMapper modelMapper;
 
     @Transactional
-    public TodoItemDto addTodo(String username, TodoItemDto todoitemDto) {
-        if (!StringUtils.hasText(todoitemDto.getTitle())) {
-            throw new NotEmptyException(todoitemDto.getId());
-        }
-
+    public TodoItemDto addTodo(String username, CreateTodoItemRequest request) {
         Account account = accountService.findByUsername(username);
 
-        TodoItem todo = modelMapper.map(todoitemDto, TodoItem.class);
-        todo.setStatus(TodoStatus.NEVER);
-        todo.addAccount(account);
+        TodoItem todoItem = TodoItem.builder()
+                .title(request.getTitle())
+                .status(TodoStatus.NEVER)
+                .account(account)
+                .build();
+        todoItem.addAccount(account);
 
-        TodoItem save = todoRepository.save(todo);
+        TodoItem save = todoRepository.save(todoItem);
 
         return modelMapper.map(save, TodoItemDto.class);
     }
@@ -89,7 +88,7 @@ public class TodoService {
 
     public TodoItemDto findById(Long id) {
         TodoItem todo = todoRepository.findByIdWithFetchJoin(id)
-                .orElseThrow(() -> new TodoNotFoundException(id));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_TODO));
 
         return modelMapper.map(todo, TodoItemDto.class);
     }
@@ -98,7 +97,7 @@ public class TodoService {
     public TodoItemDto updateStatus(Long id) {
         TodoItem todoItem = todoRepository.findById(id)
                 .orElseThrow(() -> {
-                    throw new TodoNotFoundException(id);
+                    throw new NotFoundException(ErrorCode.NOT_FOUND_TODO);
                 });
 
         // TODO todoDto로 전체 변경할 수 있도록!
@@ -113,7 +112,7 @@ public class TodoService {
 
     public Long deleteTodoItem(Long id) {
         todoRepository.findById(id)
-                .orElseThrow(() -> new TodoNotFoundException(id));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_TODO));
         todoRepository.deleteById(id);
 
         return id;

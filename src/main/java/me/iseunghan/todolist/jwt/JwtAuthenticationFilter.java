@@ -92,6 +92,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         log.error("유저 정보가 일치하지 않습니다. Msg: {}", failed.getMessage());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ErrorCode.UNAUTHORIZED.message);
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ErrorCode.UNAUTHORIZED.getMessage());
     }
 }

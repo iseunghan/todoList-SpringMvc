@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import me.iseunghan.todolist.exception.AccessDeniedException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.AccountAdapter;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,7 +112,7 @@ public class JwtTokenUtil {
     public boolean isCorrectUsername(String token, String username) {
         String tokenUsername = getUsernameFromToken(token);
         if (!tokenUsername.equals(username)) {
-            throw new AccessDeniedException(username);
+            throw new AccessDeniedException(ErrorCode.ACCESS_DENIED);
         }
 
         return true;

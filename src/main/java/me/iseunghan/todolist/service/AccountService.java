@@ -1,8 +1,9 @@
 package me.iseunghan.todolist.service;
 
 import lombok.RequiredArgsConstructor;
-import me.iseunghan.todolist.exception.AccountDuplicateException;
-import me.iseunghan.todolist.exception.AccountNotFoundException;
+import me.iseunghan.todolist.exception.BadRequestException;
+import me.iseunghan.todolist.exception.NotFoundException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
 import me.iseunghan.todolist.model.Account;
 import me.iseunghan.todolist.model.AccountAdapter;
 import me.iseunghan.todolist.model.AccountRole;
@@ -18,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +33,7 @@ public class AccountService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Account account = accountRepository.findByUsername(username)
-                .orElseThrow(() -> new AccountNotFoundException(username));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_TODO));
         return new AccountAdapter(account);
     }
 
@@ -99,24 +99,22 @@ public class AccountService implements UserDetailsService {
                 .build();
     }
 
-    public AccountDto findMyAccount(String username) {
+    public RetrieveMyAccountResponse findMyAccount(String username) {
         Account account = findByUsername(username);
 
-        return AccountDto.builder()
+        return RetrieveMyAccountResponse.builder()
                 .id(account.getId())
                 .username(account.getUsername())
                 .email(account.getEmail())
-                .password(account.getPassword())
                 .nickname(account.getNickname())
                 .roles(account.getRolesToString())
-                .todoList(null)
                 .build();
     }
 
     /* ADMIN_ROLE: 관리자가 특정 회원 정보 조회 */
     public AdminAccountDto findAccount_ADMIN(String username) {
         Account account = accountRepository.findByUsernameWithTodoList(username)
-                .orElseThrow(() -> new AccountNotFoundException(username));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_TODO));
 
         return AdminAccountDto.builder()
                 .username(account.getUsername())
@@ -130,7 +128,7 @@ public class AccountService implements UserDetailsService {
     /* USER_ROLE: 모든 사용자가 보는 다른 회원의 공개되도 안전한 정보 */
     public PublicAccountDto findAccount_USER(String username) {
         Account account = accountRepository.findByUsernameWithTodoList(username)
-                .orElseThrow(() -> new AccountNotFoundException(username));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_TODO));
 
         return PublicAccountDto.builder()
                 .username(account.getUsername())
@@ -171,13 +169,13 @@ public class AccountService implements UserDetailsService {
 
     public Account findByUsername(String username) {
         return accountRepository.findByUsername(username)
-                .orElseThrow(() -> new AccountNotFoundException(username));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ACCOUNT));
     }
 
     public void isDuplicateAccount(String username) {
         accountRepository.findByUsername(username)
                 .ifPresent(a -> {
-                    throw new AccountDuplicateException(username);
+                    throw new BadRequestException(ErrorCode.DUPLICATE_ACCOUNT);
                 });
     }
 }

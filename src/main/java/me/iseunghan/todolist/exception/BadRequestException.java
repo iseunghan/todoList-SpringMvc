@@ -5,9 +5,9 @@ import me.iseunghan.todolist.exception.model.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class AccessDeniedException extends GeneralException {
+public class BadRequestException extends GeneralException {
 
-    public AccessDeniedException(ErrorCode errorCode) {
-        super(HttpStatus.FORBIDDEN, errorCode);
+    public BadRequestException(ErrorCode errorCode) {
+        super(HttpStatus.BAD_REQUEST, errorCode);
     }
 }
