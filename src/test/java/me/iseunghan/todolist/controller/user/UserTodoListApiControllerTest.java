@@ -2,6 +2,7 @@ package me.iseunghan.todolist.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.iseunghan.todolist.jwt.JwtTokenUtil;
+import me.iseunghan.todolist.model.dto.CreateTodoItemRequest;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.service.TodoService;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -31,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserTodoListApiControllerTest {
 
     protected static final String TOKEN = "Bearer 12345";
+    private static final String USERNAME = "user";
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,7 +55,7 @@ class UserTodoListApiControllerTest {
         testTodoDtos = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
-            TodoItemDto todo = todoService.addTodo("user", TodoItemDto.builder()
+            TodoItemDto todo = todoService.addTodo("user", CreateTodoItemRequest.builder()
                     .title("test" + i)
                     .build());
 
@@ -61,23 +64,49 @@ class UserTodoListApiControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user")
+    @WithMockUser
     void 할일을_추가_할수있다() throws Exception {
         // given
-        TodoItemDto dto = TodoItemDto.builder()
+        CreateTodoItemRequest dto = CreateTodoItemRequest.builder()
                 .title("title")
                 .build();
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(USERNAME);
 
         // when
-        mockMvc.perform(post("/user/accounts/{username}/todolist", "user")
+        mockMvc.perform(post("/user/accounts/{username}/todolist", USERNAME)
                         .header("Authorization", TOKEN)
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("id").exists())
-                .andExpect(jsonPath("title").exists())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.id").exists())
+                .andExpect(jsonPath("content.title").exists())
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    void 할일을_추가_할수있다_title이_비어있으면_400() throws Exception {
+        // given
+        CreateTodoItemRequest request = CreateTodoItemRequest.builder()
+                .title("")
+                .build();
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(USERNAME);
+
+        // when
+        mockMvc.perform(post("/user/accounts/{username}/todolist", USERNAME)
+                        .header("Authorization", TOKEN)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("error.code").exists())
+                .andExpect(jsonPath("error.message").exists())
+                .andExpect(jsonPath("error.fieldErrors").exists())
         ;
     }
 
@@ -85,14 +114,16 @@ class UserTodoListApiControllerTest {
     @WithMockUser
     void 할일을_조회_할수있다() throws Exception {
         // given
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(USERNAME);
 
         // when
-        mockMvc.perform(get("/user/accounts/{username}/todolist", "user")
+        mockMvc.perform(get("/user/accounts/{username}/todolist", USERNAME)
                         .header("Authorization", TOKEN))
                 .andDo(print())
-                .andExpect(jsonPath("todoList[0].username").exists())
-                .andExpect(jsonPath("pageable").exists())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.todoList").exists())
+                .andExpect(jsonPath("content.pageable").exists())
         ;
     }
 
@@ -101,14 +132,16 @@ class UserTodoListApiControllerTest {
     void 하나의_할일을_상세조회_할수있다() throws Exception {
         // given
         TodoItemDto todoItem = testTodoDtos.get(0);
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(USERNAME);
 
         // when
-        mockMvc.perform(get("/user/accounts/{username}/todolist/{id}", "user", todoItem.getId())
+        mockMvc.perform(get("/user/accounts/{username}/todolist/{id}", USERNAME, todoItem.getId())
                         .header("Authorization", TOKEN))
                 .andDo(print())
-                .andExpect(jsonPath("id").value(todoItem.getId()))
-                .andExpect(jsonPath("title").exists())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.id").value(todoItem.getId()))
+                .andExpect(jsonPath("content.title").exists())
         ;
     }
 
@@ -117,30 +150,51 @@ class UserTodoListApiControllerTest {
     void 할일의_상태를_변경할수_있다() throws Exception {
         // given
         TodoItemDto todoItem = testTodoDtos.get(1);
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(USERNAME);
 
         // when
-        mockMvc.perform(patch("/user/accounts/{username}/todolist/{id}", "user", todoItem.getId())
+        mockMvc.perform(patch("/user/accounts/{username}/todolist/{id}", USERNAME, todoItem.getId())
                         .header("Authorization", TOKEN))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.id").exists())
         ;
     }
 
     @Test
     @WithMockUser
-    void 하나의_할일을_삭제할수_있다() throws Exception {
+    void 하나의_할일을_삭제할수_있다_200() throws Exception {
         // given
         TodoItemDto todoItem = testTodoDtos.get(4);
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(USERNAME);
 
         // when
-        mockMvc.perform(patch("/user/accounts/{username}/todolist/{id}", "user", todoItem.getId())
+        mockMvc.perform(patch("/user/accounts/{username}/todolist/{id}", USERNAME, todoItem.getId())
                         .header("Authorization", TOKEN))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.id").exists())
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    void 하나의_할일을_삭제할때_존재하지_않는다면_404() throws Exception {
+        // given
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(USERNAME);
+
+        // when
+        mockMvc.perform(patch("/user/accounts/{username}/todolist/{id}", USERNAME, 1000)
+                        .header("Authorization", TOKEN))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("error").exists())
+                .andExpect(jsonPath("error.code").exists())
         ;
     }
 

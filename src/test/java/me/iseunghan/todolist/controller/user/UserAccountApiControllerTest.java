@@ -2,9 +2,9 @@ package me.iseunghan.todolist.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.iseunghan.todolist.jwt.JwtTokenUtil;
-import me.iseunghan.todolist.model.dto.AccountDto;
 import me.iseunghan.todolist.model.dto.CreateAccountRequest;
 import me.iseunghan.todolist.model.dto.CreateAccountResponse;
+import me.iseunghan.todolist.model.dto.UpdateAccountRequest;
 import me.iseunghan.todolist.service.AccountService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -68,7 +69,7 @@ class UserAccountApiControllerTest {
     @Test
     void 새로운_회원을_추가할_수있다() throws Exception {
         // given
-        AccountDto dto = AccountDto.builder()
+        CreateAccountRequest request = CreateAccountRequest.builder()
                 .username("testUser100")
                 .nickname("testNick100")
                 .email("test100@email.com")
@@ -79,46 +80,49 @@ class UserAccountApiControllerTest {
         mockMvc.perform(post("/user/accounts")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("username").value(dto.getUsername()))
-                .andExpect(jsonPath("nickname").value(dto.getNickname()))
-                .andExpect(jsonPath("email").value(dto.getEmail()))
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.username").value(request.getUsername()))
+                .andExpect(jsonPath("content.email").value(request.getEmail()))
+                .andExpect(jsonPath("content.nickname").value(request.getNickname()))
                 ;
     }
 
     @Test
     @WithMockUser
     void USER는_모든_회원의_공개정보를_조회할_수있다() throws Exception {
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
 
         // when & then
         mockMvc.perform(get("/user/accounts")
                         .header("Authorization", "Bearer 12345"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("accountList[0].username").exists())
-                .andExpect(jsonPath("pageable").exists())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.accountList[0].username").exists())
+                .andExpect(jsonPath("content.pageable").exists())
         ;
     }
 
     @Test
     @WithMockUser
-    void USER_자신의_모든_정보를_조회할_수있다() throws Exception {
+    void USER_자신의_정보를_조회할_수있다() throws Exception {
         // given
-        CreateAccountResponse testAccount = this.testAccounts.get(0);
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        CreateAccountResponse testAccount = this.testAccounts.get(0);   // "test10"
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(testAccount.getUsername());
 
         // when & then
         mockMvc.perform(get("/user/accounts/{username}", testAccount.getUsername())
                         .header("Authorization", "Bearer 12345"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id").exists())
-                .andExpect(jsonPath("username").value(testAccount.getUsername()))
-                .andExpect(jsonPath("nickname").value(testAccount.getNickname()))
-                .andExpect(jsonPath("email").value(testAccount.getEmail()))
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.id").exists())
+                .andExpect(jsonPath("content.username").value(testAccount.getUsername()))
+                .andExpect(jsonPath("content.nickname").value(testAccount.getNickname()))
+                .andExpect(jsonPath("content.email").value(testAccount.getEmail()))
         ;
     }
 
@@ -127,13 +131,14 @@ class UserAccountApiControllerTest {
     void USER_회원_정보를_수정할_수있다() throws Exception {
         // given
         CreateAccountResponse testAccount = this.testAccounts.get(1);
-        AccountDto editDto = AccountDto.builder()
+        UpdateAccountRequest editDto = UpdateAccountRequest.builder()
                 .username("editName")
                 .password("editPass")
                 .email("edit@email.com")
                 .nickname("editNick")
                 .build();
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(testAccount.getUsername());
 
         // when & then
         mockMvc.perform(patch("/user/accounts/{username}", testAccount.getUsername())
@@ -142,6 +147,8 @@ class UserAccountApiControllerTest {
                         .content(objectMapper.writeValueAsString(editDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content").exists())
         ;
     }
 
@@ -150,13 +157,16 @@ class UserAccountApiControllerTest {
     void USER_자신의_계정을_삭제할_수있다() throws Exception {
         // given
         CreateAccountResponse testAccount = this.testAccounts.get(2);
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(testAccount.getUsername());
 
         // when & then
         mockMvc.perform(delete("/user/accounts/{username}", testAccount.getUsername())
                         .header("Authorization", "Bearer 12345"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("success").exists())
+        ;
     }
 
 }

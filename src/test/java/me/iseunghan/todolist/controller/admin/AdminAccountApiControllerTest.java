@@ -33,11 +33,11 @@ class AdminAccountApiControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("accountList[0].username").exists())
-                .andExpect(jsonPath("accountList[0].email").exists())
-                .andExpect(jsonPath("accountList[0].nickname").exists())
-                .andExpect(jsonPath("accountList[0].role").exists())
-                .andExpect(jsonPath("pageable").exists())
+                .andExpect(jsonPath("content.accountList[0].username").exists())
+                .andExpect(jsonPath("content.accountList[0].email").exists())
+                .andExpect(jsonPath("content.accountList[0].nickname").exists())
+                .andExpect(jsonPath("content.accountList[0].role").exists())
+                .andExpect(jsonPath("content.pageable").exists())
         ;
     }
 
@@ -60,11 +60,25 @@ class AdminAccountApiControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("username").exists())
-                .andExpect(jsonPath("email").exists())
-                .andExpect(jsonPath("nickname").exists())
-                .andExpect(jsonPath("todoSize").exists())
-                .andExpect(jsonPath("role").exists())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("content.username").exists())
+                .andExpect(jsonPath("content.email").exists())
+                .andExpect(jsonPath("content.nickname").exists())
+                .andExpect(jsonPath("content.todoSize").exists())
+                .andExpect(jsonPath("content.role").exists())
+        ;
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void ADMIN은_하나의_회원을_상세조회_할수있다_404() throws Exception {
+        // when & then
+        mockMvc.perform(get("/admin/accounts/admin123")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("success").exists())
+                .andExpect(jsonPath("error").exists())
         ;
     }
 

@@ -1,15 +1,13 @@
 package me.iseunghan.todolist.controller.admin;
 
+import me.iseunghan.todolist.common.ApiResponse;
 import me.iseunghan.todolist.model.dto.AdminAccountDto;
 import me.iseunghan.todolist.model.dto.RetrieveAccountResponse;
 import me.iseunghan.todolist.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -19,23 +17,35 @@ public class AdminAccountApiController {
     private AccountService accountService;
 
     @GetMapping("/accounts")
-    public ResponseEntity getAccounts(@PageableDefault Pageable pageable) {
+    public ApiResponse<RetrieveAccountResponse<AdminAccountDto>> getAccounts(@PageableDefault Pageable pageable) {
         RetrieveAccountResponse<AdminAccountDto> accountList = accountService.findAll_ADMIN(pageable);
 
-        return ResponseEntity.ok(accountList);
+        return ApiResponse.<RetrieveAccountResponse<AdminAccountDto>>of()
+                .success(true)
+                .error(null)
+                .content(accountList)
+                .build();
     }
 
     @GetMapping("/accounts/{username}")
-    public ResponseEntity getAccount(@PathVariable String username) {
+    public ApiResponse<AdminAccountDto> getAccount(@PathVariable String username) {
         AdminAccountDto accountDto = accountService.findAccount_ADMIN(username);
 
-        return ResponseEntity.ok(accountDto);
+        return ApiResponse.<AdminAccountDto>of()
+                .success(true)
+                .error(null)
+                .content(accountDto)
+                .build();
     }
 
     @DeleteMapping("/accounts/{username}")
-    public ResponseEntity deleteAccount(@PathVariable String username) {
-        Long id = accountService.deleteAccount(username);
+    public ApiResponse<Void> deleteAccount(@PathVariable String username) {
+        accountService.deleteAccount(username);
 
-        return ResponseEntity.ok(Map.of("id", id));
+        return ApiResponse.<Void>of()
+                .success(true)
+                .error(null)
+                .content(null)
+                .build();
     }
 }

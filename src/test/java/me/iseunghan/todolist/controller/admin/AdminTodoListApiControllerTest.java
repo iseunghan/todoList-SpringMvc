@@ -27,9 +27,9 @@ class AdminTodoListApiControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("todoList[0].id").exists())
-                .andExpect(jsonPath("todoList[0].username").exists())
-                .andExpect(jsonPath("pageable").exists())
+                .andExpect(jsonPath("content.todoList[0].id").exists())
+                .andExpect(jsonPath("content.todoList[0].username").exists())
+                .andExpect(jsonPath("content.pageable").exists())
         ;
     }
 }

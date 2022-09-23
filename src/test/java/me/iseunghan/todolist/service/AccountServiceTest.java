@@ -1,14 +1,12 @@
 package me.iseunghan.todolist.service;
 
-import me.iseunghan.todolist.exception.AccountNotFoundException;
-import me.iseunghan.todolist.model.TodoStatus;
+import me.iseunghan.todolist.exception.NotFoundException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
 import me.iseunghan.todolist.model.dto.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
-
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,12 +41,8 @@ class AccountServiceTest {
         accountService.addAccount(request2);
 
         for (int i = 0; i < 10; i++) {
-            TodoItemDto todo = TodoItemDto.builder()
+            CreateTodoItemRequest todo = CreateTodoItemRequest.builder()
                     .title("title" + i)
-                    .status(TodoStatus.NEVER)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .username(request.getUsername())
                     .build();
 
             todoService.addTodo(request.getUsername(), todo);
@@ -111,11 +105,10 @@ class AccountServiceTest {
     @Test
     void USER는_자신의_account_조회할_수있다() {
         // when
-        AccountDto account = accountService.findMyAccount("test");
+        RetrieveMyAccountResponse account = accountService.findMyAccount("test");
 
         // then
         assertEquals(account.getUsername(), "test");
-        assertNotNull(account.getPassword());
         assertEquals(account.getEmail(), "test@email.com");
         assertEquals(account.getNickname(), "test-nick");
     }
@@ -137,8 +130,8 @@ class AccountServiceTest {
         String username = "ghost";
 
         // when & then
-        AccountNotFoundException nfe = assertThrows(AccountNotFoundException.class, () -> accountService.findMyAccount(username));
-        assertEquals(nfe.getUsername(), username);
+        NotFoundException nfe = assertThrows(NotFoundException.class, () -> accountService.findMyAccount(username));
+        assertEquals(nfe.getCode(), ErrorCode.NOT_FOUND_ACCOUNT.getCode());
     }
 
     @Test
@@ -164,7 +157,7 @@ class AccountServiceTest {
         String username = "ghost";
 
         // when & then
-        assertThrows(AccountNotFoundException.class, () -> accountService.updateAccount(username, null));
+        assertThrows(NotFoundException.class, () -> accountService.updateAccount(username, null));
     }
 
     @Test
@@ -192,8 +185,8 @@ class AccountServiceTest {
         String username = "ghost";
 
         // when & then
-        AccountNotFoundException nfe = assertThrows(AccountNotFoundException.class, () -> accountService.deleteAccount(username));
-        assertEquals(nfe.getUsername(), username);
+        NotFoundException nfe = assertThrows(NotFoundException.class, () -> accountService.deleteAccount(username));
+        assertEquals(nfe.getCode(), ErrorCode.NOT_FOUND_ACCOUNT.getCode());
     }
 
 

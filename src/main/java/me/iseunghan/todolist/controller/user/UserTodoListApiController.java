@@ -1,7 +1,9 @@
 package me.iseunghan.todolist.controller.user;
 
+import me.iseunghan.todolist.common.ApiResponse;
 import me.iseunghan.todolist.common.AuthUtils;
 import me.iseunghan.todolist.common.LoginUser;
+import me.iseunghan.todolist.model.dto.CreateTodoItemRequest;
 import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import me.iseunghan.todolist.service.TodoService;
@@ -9,14 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.util.Map;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/user")
@@ -26,47 +24,65 @@ public class UserTodoListApiController {
     private TodoService todoService;
 
     @GetMapping("/accounts/{username}/todolist")
-    public ResponseEntity findUserTodoList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable String username, @LoginUser String loginUsername) {
+    public ApiResponse<RetrieveTodoItemResponse> findUserTodoList(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable String username, @LoginUser String loginUsername) {
         AuthUtils.validationUsername(username, loginUsername);
         RetrieveTodoItemResponse response = todoService.findUserTodoList(pageable, username);
 
-        return ResponseEntity.ok(response);
+        return ApiResponse.<RetrieveTodoItemResponse>of()
+                .success(true)
+                .error(null)
+                .content(response)
+                .build();
     }
 
     @GetMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity findUserTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
+    public ApiResponse<TodoItemDto> findUserTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
         AuthUtils.validationUsername(username, loginUsername);
 
         TodoItemDto todoItemDto = todoService.findById(id);
 
-        return ResponseEntity.ok(todoItemDto);
+        return ApiResponse.<TodoItemDto>of()
+                .success(true)
+                .error(null)
+                .content(todoItemDto)
+                .build();
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/accounts/{username}/todolist")
-    public ResponseEntity addTodo(@PathVariable String username, @RequestBody TodoItemDto todoItemDto, @LoginUser String loginUsername) {
+    public ApiResponse<TodoItemDto> addTodo(@PathVariable String username, @Valid @RequestBody CreateTodoItemRequest request, @LoginUser String loginUsername) {
         AuthUtils.validationUsername(username, loginUsername);
 
-        TodoItemDto result = todoService.addTodo(username, todoItemDto);
-        URI uri = linkTo(methodOn(UserTodoListApiController.class).addTodo(username, todoItemDto, loginUsername)).withSelfRel().toUri();
+        TodoItemDto result = todoService.addTodo(username, request);
 
-        return ResponseEntity.created(uri).body(result);
+        return ApiResponse.<TodoItemDto>of()
+                .success(true)
+                .error(null)
+                .content(result)
+                .build();
     }
 
     @PatchMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity updateTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
+    public ApiResponse<TodoItemDto> updateTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
         AuthUtils.validationUsername(username, loginUsername);
-
         TodoItemDto todoItem = todoService.updateStatus(id);
 
-        return ResponseEntity.ok(todoItem);
+        return ApiResponse.<TodoItemDto>of()
+                .success(true)
+                .error(null)
+                .content(todoItem)
+                .build();
     }
 
     @DeleteMapping("/accounts/{username}/todolist/{id}")
-    public ResponseEntity deleteTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
+    public ApiResponse<Void> deleteTodo(@PathVariable String username, @PathVariable Long id, @LoginUser String loginUsername) {
         AuthUtils.validationUsername(username, loginUsername);
+        todoService.deleteTodoItem(id);
 
-        Long deleteId = todoService.deleteTodoItem(id);
-
-        return ResponseEntity.ok(Map.of("id", deleteId));
+        return ApiResponse.<Void>of()
+                .success(true)
+                .error(null)
+                .content(null)
+                .build();
     }
 }

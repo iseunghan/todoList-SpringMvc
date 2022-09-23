@@ -1,8 +1,10 @@
 package me.iseunghan.todolist.service;
 
-import me.iseunghan.todolist.exception.TodoNotFoundException;
+import me.iseunghan.todolist.exception.NotFoundException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
 import me.iseunghan.todolist.model.TodoStatus;
 import me.iseunghan.todolist.model.dto.CreateAccountRequest;
+import me.iseunghan.todolist.model.dto.CreateTodoItemRequest;
 import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
 import org.junit.jupiter.api.*;
@@ -27,7 +29,6 @@ public class TodoServiceTest {
     @Autowired
     private AccountService accountService;
 
-    List<TodoItemDto> todoItemDtos = new ArrayList<>();
     List<TodoItemDto> savedTodoDtos = new ArrayList<>();
 
     @BeforeAll
@@ -52,16 +53,11 @@ public class TodoServiceTest {
         accountService.addAccount(request2);
 
         for (int i = 0; i < 10; i++) {
-            TodoItemDto todo = TodoItemDto.builder()
+            CreateTodoItemRequest request3 = CreateTodoItemRequest.builder()
                     .title("title" + i)
-                    .status(TodoStatus.NEVER)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
                     .build();
 
-            this.todoItemDtos.add(todo);
-
-            TodoItemDto save = todoService.addTodo(request.getUsername(), todo);
+            TodoItemDto save = todoService.addTodo(request.getUsername(), request3);
             savedTodoDtos.add(save);
         }
 
@@ -71,23 +67,22 @@ public class TodoServiceTest {
     @Test
     void 할일을_추가할_수_있다() {
         // given
-        TodoItemDto todoItemDto = TodoItemDto.builder()
+        CreateTodoItemRequest request = CreateTodoItemRequest.builder()
                 .title("test title")
-                .username("test2")
                 .build();
 
         // when
-        TodoItemDto result = todoService.addTodo(todoItemDto.getUsername(), todoItemDto);
+        TodoItemDto result = todoService.addTodo("test2", request);
 
         // then
-        assertEquals(result.getTitle(), todoItemDto.getTitle());
+        assertEquals(result.getTitle(), result.getTitle());
     }
 
     @Test
     void 해당_유저의_모든_할일을_조회할_수있다_with_pageable() {
         // given
         int size = 5;
-        int page_size = this.todoItemDtos.size() / size;
+        int page_size = this.savedTodoDtos.size() / size;
 
         // when
         RetrieveTodoItemResponse result = todoService.findUserTodoList(PageRequest.of(0, 5), "test");
@@ -112,10 +107,10 @@ public class TodoServiceTest {
     @Test
     void 없는_할일을_조회하면_404() {
         // when
-        TodoNotFoundException nfe = assertThrows(TodoNotFoundException.class, () -> todoService.findById(999L));
+        NotFoundException nfe = assertThrows(NotFoundException.class, () -> todoService.findById(999L));
 
         // then
-        assertEquals(nfe.getId(), 999);
+        assertEquals(nfe.getCode(), ErrorCode.NOT_FOUND_TODO.getCode());
     }
 
     @Test
@@ -136,8 +131,8 @@ public class TodoServiceTest {
         Long id = 90L;
 
         // when & then
-        TodoNotFoundException nfe = assertThrows(TodoNotFoundException.class, () -> todoService.updateStatus(id));
-        assertEquals(nfe.getId(), id);
+        NotFoundException nfe = assertThrows(NotFoundException.class, () -> todoService.updateStatus(id));
+        assertEquals(nfe.getCode(), ErrorCode.NOT_FOUND_TODO.getCode());
     }
 
     @Test
@@ -156,7 +151,7 @@ public class TodoServiceTest {
         Long id = 90L;
 
         // when & then
-        TodoNotFoundException nfe = assertThrows(TodoNotFoundException.class, () -> todoService.deleteTodoItem(id));
-        assertEquals(nfe.getId(), id);
+        NotFoundException nfe = assertThrows(NotFoundException.class, () -> todoService.deleteTodoItem(id));
+        assertEquals(nfe.getCode(), ErrorCode.NOT_FOUND_TODO.getCode());
     }
 }

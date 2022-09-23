@@ -1,22 +1,17 @@
 package me.iseunghan.todolist.controller.user;
 
+import me.iseunghan.todolist.common.ApiResponse;
 import me.iseunghan.todolist.common.AuthUtils;
 import me.iseunghan.todolist.common.LoginUser;
-import me.iseunghan.todolist.common.ApiResponse;
 import me.iseunghan.todolist.model.dto.*;
 import me.iseunghan.todolist.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.net.URI;
-import java.util.Map;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/user")
@@ -26,43 +21,61 @@ public class UserAccountApiController {
     private AccountService accountService;
 
     @GetMapping("/accounts")
-    public ResponseEntity getAccount(@PageableDefault Pageable pageable) {
+    public ApiResponse<RetrieveAccountResponse<PublicAccountDto>> getAccount(@PageableDefault Pageable pageable) {
         RetrieveAccountResponse<PublicAccountDto> accounts = accountService.findAll_USER(pageable);
 
-        return ResponseEntity.ok(accounts);
+        return ApiResponse.<RetrieveAccountResponse<PublicAccountDto>>of()
+                .success(true)
+                .error(null)
+                .content(accounts)
+                .build();
     }
 
     @GetMapping("/accounts/{username}")
-    public ResponseEntity getMyAccount(@PathVariable String username, @LoginUser String loginUsername) {
+    public ApiResponse<RetrieveMyAccountResponse> getMyAccount(@PathVariable String username, @LoginUser String loginUsername) {
         AuthUtils.validationUsername(username, loginUsername);
-        AccountDto dto = accountService.findMyAccount(username);
+        RetrieveMyAccountResponse response = accountService.findMyAccount(username);
 
-        return ResponseEntity.ok(dto);
+        return ApiResponse.<RetrieveMyAccountResponse>of()
+                .success(true)
+                .error(null)
+                .content(response)
+                .build();
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/accounts")
-    public ResponseEntity createAccount(@RequestBody
-                                        @Valid CreateAccountRequest request) {
+    public ApiResponse<CreateAccountResponse> createAccount(@RequestBody @Valid CreateAccountRequest request) {
         CreateAccountResponse response = accountService.addAccount(request);
 
-        URI uri = linkTo(methodOn(UserAccountApiController.class).createAccount(request)).withSelfRel().toUri();
-
-        return ResponseEntity.created(uri).body(response);
+        return ApiResponse.<CreateAccountResponse>of()
+                .success(true)
+                .error(null)
+                .content(response)
+                .build();
     }
 
     @PatchMapping("/accounts/{username}")
-    public ResponseEntity updateAccount(@PathVariable String username, @RequestBody UpdateAccountRequest accountRequest, @LoginUser String loginUsername) {
+    public ApiResponse<Long> updateAccount(@PathVariable String username, @RequestBody UpdateAccountRequest accountRequest, @LoginUser String loginUsername) {
         AuthUtils.validationUsername(username, loginUsername);
         Long id = accountService.updateAccount(username, accountRequest);
 
-        return ResponseEntity.ok(Map.of("id", id));
+        return ApiResponse.<Long>of()
+                .success(true)
+                .error(null)
+                .content(id)
+                .build();
     }
 
     @DeleteMapping("/accounts/{username}")
-    public ResponseEntity deleteAccount(@PathVariable String username, @LoginUser String loginUsername) {
+    public ApiResponse<Void> deleteAccount(@PathVariable String username, @LoginUser String loginUsername) {
         AuthUtils.validationUsername(username, loginUsername);
-        Long id = accountService.deleteAccount(username);
+        accountService.deleteAccount(username);
 
-        return ResponseEntity.ok((Map.of("id", id)));
+        return ApiResponse.<Void>of()
+                .success(true)
+                .error(null)
+                .content(null)
+                .build();
     }
 }
