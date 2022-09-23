@@ -1,0 +1,14 @@
+== Error Code
+
+|===
+|에러코드|메세지|설명
+
+|T001|TODO doesn't exist|할일을 찾을 수 없음
+|T002|title doesn't blank|타이틀이 비어있음
+|A001|Account Not Found|사용자를 찾을 수 없음
+|A002|Duplicated Account!|중복되는 사용자가 존재함
+|S001|Unauthorized Error|인증이 필요함
+|S002|AccessDenied Error|권한이 필요함
+|F001|Check Request Argument|요청한 데이터에 대한 오류
+
+|===

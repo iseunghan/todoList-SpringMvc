@@ -6,6 +6,8 @@
 :toclevels: 4
 :sectlinks:
 
+include::{docdir}/errorCode.adoc[]
+
 include::{docdir}/admin_Account_Api.adoc[]
 
 include::{docdir}/admin_Todo_Api.adoc[]

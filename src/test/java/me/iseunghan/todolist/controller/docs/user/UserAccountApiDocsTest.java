@@ -1,8 +1,12 @@
 package me.iseunghan.todolist.controller.docs.user;
 
+import me.iseunghan.todolist.common.LoginUserArgumentResolver;
 import me.iseunghan.todolist.config.SecurityConfig;
+import me.iseunghan.todolist.controller.admin.AdminTodoListApiController;
 import me.iseunghan.todolist.controller.docs.RestDocumentSupport;
 import me.iseunghan.todolist.controller.user.UserAccountApiController;
+import me.iseunghan.todolist.exception.NotFoundException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
 import me.iseunghan.todolist.jwt.JwtTokenUtil;
 import me.iseunghan.todolist.model.dto.*;
 import me.iseunghan.todolist.service.AccountService;
@@ -26,16 +30,11 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = UserAccountApiController.class,
-        excludeFilters = {
-                @ComponentScan.Filter(
-                        type = FilterType.ASSIGNABLE_TYPE,
-                        classes = SecurityConfig.class
-                )}
-)
+@WebMvcTest(controllers = UserAccountApiController.class)
 public class UserAccountApiDocsTest extends RestDocumentSupport {
 
     @MockBean
@@ -68,19 +67,57 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
                 .andDo(print())
                 .andDo(document("{class-name}/{method-name}",
                                 requestFields(
-                                        fieldWithPath("username").description("아이디"),
-                                        fieldWithPath("password").description("패스워드"),
-                                        fieldWithPath("email").description("이메일"),
-                                        fieldWithPath("nickname").description("닉네임")
+                                        fieldWithPath("username").description("아이디").attributes(key("required").value(true)),
+                                        fieldWithPath("password").description("패스워드").attributes(key("required").value(true)),
+                                        fieldWithPath("email").description("이메일").attributes(key("required").value(true)),
+                                        fieldWithPath("nickname").description("닉네임").attributes(key("required").value(true))
                                 ),
                                 responseFields(
-                                        fieldWithPath("username").description("아이디"),
-                                        fieldWithPath("email").description("이메일"),
-                                        fieldWithPath("nickname").description("닉네임")
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("content.username").description("아이디"),
+                                        fieldWithPath("content.email").description("이메일"),
+                                        fieldWithPath("content.nickname").description("닉네임")
                                 )
                         )
                 )
                 .andExpect(status().isCreated())
+        ;
+    }
+
+    @Test
+    void addAccount_400() throws Exception {
+        // given
+        CreateAccountRequest request = CreateAccountRequest.builder()
+                .username("")
+                .nickname("")
+                .email("")
+                .password("")
+                .build();
+
+        // when & then
+        mockMvc.perform(post("/user/accounts")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andDo(document("{class-name}/{method-name}",
+                                requestFields(
+                                        fieldWithPath("username").description("아이디").attributes(key("required").value(true)),
+                                        fieldWithPath("password").description("패스워드").attributes(key("required").value(true)),
+                                        fieldWithPath("email").description("이메일").attributes(key("required").value(true)),
+                                        fieldWithPath("nickname").description("닉네임").attributes(key("required").value(true))
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("error.code").description("에러 코드"),
+                                        fieldWithPath("error.message").description("에러 메세지"),
+                                        fieldWithPath("error.fieldErrors[].field").description("필드명"),
+                                        fieldWithPath("error.fieldErrors[].value").description("사용자가 입력한 값"),
+                                        fieldWithPath("error.fieldErrors[].reason").description("필드에 대한 에러 메세지")
+                                )
+                        )
+                )
+                .andExpect(status().isBadRequest())
         ;
     }
 
@@ -110,7 +147,7 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
                         .last(true)
                         .build())
                 .build();
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
         given(accountService.findAll_USER(any())).willReturn(response);
 
         // when & then
@@ -122,15 +159,16 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
                                         headerWithName("Authorization").description("JWT 토큰 값")
                                 ),
                                 responseFields(
-                                        fieldWithPath("accountList[].username").description("아이디"),
-                                        fieldWithPath("accountList[].email").description("이메일"),
-                                        fieldWithPath("accountList[].nickname").description("닉네임"),
-                                        fieldWithPath("accountList[].todoSize").description("할일 개수"),
-                                        fieldWithPath("pageable.number").description("현재 페이지 번호"),
-                                        fieldWithPath("pageable.totalElements").description("전체 사용자 수"),
-                                        fieldWithPath("pageable.totalPages").description("전체 페이지 수"),
-                                        fieldWithPath("pageable.first").description("첫번째 페이지 여부"),
-                                        fieldWithPath("pageable.last").description("마지막 페이지 여부")
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("content.accountList[].username").description("아이디"),
+                                        fieldWithPath("content.accountList[].email").description("이메일"),
+                                        fieldWithPath("content.accountList[].nickname").description("닉네임"),
+                                        fieldWithPath("content.accountList[].todoSize").description("할일 개수"),
+                                        fieldWithPath("content.pageable.number").description("현재 페이지 번호"),
+                                        fieldWithPath("content.pageable.totalElements").description("전체 사용자 수"),
+                                        fieldWithPath("content.pageable.totalPages").description("전체 페이지 수"),
+                                        fieldWithPath("content.pageable.first").description("첫번째 페이지 여부"),
+                                        fieldWithPath("content.pageable.last").description("마지막 페이지 여부")
                                 )
                         )
                 )
@@ -142,16 +180,15 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
     @WithMockUser
     void retrieve_My_Account() throws Exception {
         // given
-        AccountDto accountDto = AccountDto.builder()
+        RetrieveMyAccountResponse accountDto = RetrieveMyAccountResponse.builder()
                 .id(5L)
                 .username("john1234")
-                .password("pass")
                 .email("test@email.com")
                 .nickname("nickname")
                 .roles("USER")
-                .todoList(null)
                 .build();
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn(accountDto.getUsername());
         given(accountService.findMyAccount(anyString())).willReturn(accountDto);
 
         // when & then
@@ -166,17 +203,43 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
                                         parameterWithName("username").description("사용자 아이디")
                                 ),
                                 responseFields(
-                                        fieldWithPath("id").description("idx"),
-                                        fieldWithPath("username").description("아이디"),
-                                        fieldWithPath("password").description("패스워드"),
-                                        fieldWithPath("nickname").description("닉네임"),
-                                        fieldWithPath("email").description("이메일"),
-                                        fieldWithPath("roles").description("권한"),
-                                        fieldWithPath("todoList").ignored()
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("content.id").description("idx"),
+                                        fieldWithPath("content.username").description("아이디"),
+                                        fieldWithPath("content.nickname").description("닉네임"),
+                                        fieldWithPath("content.email").description("이메일"),
+                                        fieldWithPath("content.roles").description("권한")
                                 )
                         )
                 )
                 .andExpect(status().isOk())
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    void retrieve_My_Account_403() throws Exception {
+        // given
+
+        // when & then
+        mockMvc.perform(get("/user/accounts/{username}", "john1234")
+                        .header("Authorization", TOKEN))
+                .andDo(print())
+                .andDo(document("{class-name}/{method-name}",
+                                requestHeaders(
+                                        headerWithName("Authorization").description("JWT 토큰 값")
+                                ),
+                                pathParameters(
+                                        parameterWithName("username").description("사용자 아이디")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("error.code").description("에러 코드"),
+                                        fieldWithPath("error.message").description("에러 메세지")
+                                )
+                        )
+                )
+                .andExpect(status().isForbidden())
         ;
     }
 
@@ -190,7 +253,8 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
                 .email("edit@email.com")
                 .nickname("editNick")
                 .build();
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn("username1234");
         given(accountService.updateAccount(anyString(), any())).willReturn(5L);
 
         // when & then
@@ -207,13 +271,14 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
                                         parameterWithName("username").description("사용자 아이디")
                                 ),
                                 requestFields(
-                                        fieldWithPath("username").description("변경할 아이디").optional(),
-                                        fieldWithPath("password").description("변경할 패스워드").optional(),
-                                        fieldWithPath("email").description("변경할 이메일").optional(),
-                                        fieldWithPath("nickname").description("변경할 넥네임").optional()
+                                        fieldWithPath("username").description("변경할 아이디").attributes(key("required").value(false)),
+                                        fieldWithPath("password").description("변경할 패스워드").attributes(key("required").value(false)),
+                                        fieldWithPath("email").description("변경할 이메일").attributes(key("required").value(false)),
+                                        fieldWithPath("nickname").description("변경할 넥네임").attributes(key("required").value(false))
                                 ),
                                 responseFields(
-                                        fieldWithPath("id").description("사용자 idx")
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("content").description("사용자 idx")
                                 )
                         )
                 )
@@ -223,9 +288,51 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
 
     @Test
     @WithMockUser
+    void update_Account_403() throws Exception {
+        // given
+        UpdateAccountRequest editDto = UpdateAccountRequest.builder()
+                .username("editUser")
+                .password("editPass")
+                .email("edit@email.com")
+                .nickname("editNick")
+                .build();
+
+        // when & then
+        mockMvc.perform(patch("/user/accounts/{username}", "username1234")
+                        .header("Authorization", TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(editDto)))
+                .andDo(print())
+                .andDo(document("{class-name}/{method-name}",
+                                requestHeaders(
+                                        headerWithName("Authorization").description("JWT 토큰 값")
+                                ),
+                                pathParameters(
+                                        parameterWithName("username").description("사용자 아이디")
+                                ),
+                                requestFields(
+                                        fieldWithPath("username").description("변경할 아이디").attributes(key("required").value(false)),
+                                        fieldWithPath("password").description("변경할 패스워드").attributes(key("required").value(false)),
+                                        fieldWithPath("email").description("변경할 이메일").attributes(key("required").value(false)),
+                                        fieldWithPath("nickname").description("변경할 넥네임").attributes(key("required").value(false))
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("error.code").description("에러 코드"),
+                                        fieldWithPath("error.message").description("에러 메세지")
+                                )
+                        )
+                )
+                .andExpect(status().isForbidden())
+        ;
+    }
+
+    @Test
+    @WithMockUser
     void delete_My_Account() throws Exception {
         // given
-        given(jwtTokenUtil.isCorrectUsername(anyString(), anyString())).willReturn(true);
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn("username1234");
         given(accountService.deleteAccount(anyString())).willReturn(6L);
 
         // when & then
@@ -240,11 +347,41 @@ public class UserAccountApiDocsTest extends RestDocumentSupport {
                                         parameterWithName("username").description("사용자 아이디")
                                 ),
                                 responseFields(
-                                        fieldWithPath("id").description("삭제된 사용자 idx")
+                                        fieldWithPath("success").description("성공 여부 (true/false)")
                                 )
                         )
                 )
                 .andExpect(status().isOk())
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    void delete_My_Account_404() throws Exception {
+        // given
+        given(jwtTokenUtil.extractToken(any())).willReturn("token");
+        given(jwtTokenUtil.getUsernameFromToken(anyString())).willReturn("username1234");
+        given(accountService.deleteAccount(anyString())).willThrow(new NotFoundException(ErrorCode.NOT_FOUND_ACCOUNT));
+
+        // when & then
+        mockMvc.perform(delete("/user/accounts/{username}", "username1234")
+                        .header("Authorization", TOKEN))
+                .andDo(print())
+                .andDo(document("{class-name}/{method-name}",
+                                requestHeaders(
+                                        headerWithName("Authorization").description("JWT 토큰 값")
+                                ),
+                                pathParameters(
+                                        parameterWithName("username").description("사용자 아이디")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("error.code").description("에러 코드"),
+                                        fieldWithPath("error.message").description("에러 메세지")
+                                )
+                        )
+                )
+                .andExpect(status().isNotFound())
         ;
     }
 }

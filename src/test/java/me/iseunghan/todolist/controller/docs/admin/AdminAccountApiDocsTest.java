@@ -4,6 +4,9 @@ package me.iseunghan.todolist.controller.docs.admin;
 import me.iseunghan.todolist.config.SecurityConfig;
 import me.iseunghan.todolist.controller.admin.AdminAccountApiController;
 import me.iseunghan.todolist.controller.docs.RestDocumentSupport;
+import me.iseunghan.todolist.exception.AccessDeniedException;
+import me.iseunghan.todolist.exception.NotFoundException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
 import me.iseunghan.todolist.jwt.JwtTokenUtil;
 import me.iseunghan.todolist.model.dto.AdminAccountDto;
 import me.iseunghan.todolist.model.dto.PageDto;
@@ -43,7 +46,6 @@ public class AdminAccountApiDocsTest extends RestDocumentSupport {
 
     @MockBean
     private AccountService accountService;
-
     @MockBean
     private JwtTokenUtil jwtTokenUtil;
 
@@ -88,20 +90,47 @@ public class AdminAccountApiDocsTest extends RestDocumentSupport {
                                         headerWithName("Authorization").description("JWT 토큰 값")
                                 ),
                                 responseFields(
-                                        fieldWithPath("accountList[].username").description("아이디"),
-                                        fieldWithPath("accountList[].email").description("이메일"),
-                                        fieldWithPath("accountList[].nickname").description("닉네임"),
-                                        fieldWithPath("accountList[].role").description("권한"),
-                                        fieldWithPath("accountList[].todoSize").description("할일 개수"),
-                                        fieldWithPath("pageable.number").description("현재 페이지 번호"),
-                                        fieldWithPath("pageable.totalElements").description("전체 사용자 수"),
-                                        fieldWithPath("pageable.totalPages").description("전체 페이지 수"),
-                                        fieldWithPath("pageable.first").description("첫번째 페이지 여부"),
-                                        fieldWithPath("pageable.last").description("마지막 페이지 여부")
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("content.accountList[].username").description("아이디"),
+                                        fieldWithPath("content.accountList[].email").description("이메일"),
+                                        fieldWithPath("content.accountList[].nickname").description("닉네임"),
+                                        fieldWithPath("content.accountList[].role").description("권한"),
+                                        fieldWithPath("content.accountList[].todoSize").description("할일 개수"),
+                                        fieldWithPath("content.pageable.number").description("현재 페이지 번호"),
+                                        fieldWithPath("content.pageable.totalElements").description("전체 사용자 수"),
+                                        fieldWithPath("content.pageable.totalPages").description("전체 페이지 수"),
+                                        fieldWithPath("content.pageable.first").description("첫번째 페이지 여부"),
+                                        fieldWithPath("content.pageable.last").description("마지막 페이지 여부")
                                 )
                         )
                 )
                 .andExpect(status().isOk())
+        ;
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void Retrieve_AccountList_403() throws Exception {
+        // given
+        given(accountService.findAll_ADMIN(any())).willThrow(new AccessDeniedException(ErrorCode.ACCESS_DENIED));
+
+        // when & then
+        mockMvc.perform(get("/admin/accounts")
+                        .header("Authorization", TOKEN)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andDo(document("{class-name}/{method-name}",
+                                requestHeaders(
+                                        headerWithName("Authorization").description("JWT 토큰 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("error.code").description("에러 코드"),
+                                        fieldWithPath("error.message").description("에러 메세지")
+                                )
+                        )
+                )
+                .andExpect(status().isForbidden())
         ;
     }
 
@@ -129,15 +158,43 @@ public class AdminAccountApiDocsTest extends RestDocumentSupport {
                                         headerWithName("Authorization").description("JWT 토큰 값")
                                 ),
                                 responseFields(
-                                        fieldWithPath("username").description("아이디"),
-                                        fieldWithPath("email").description("이메일"),
-                                        fieldWithPath("nickname").description("닉네임"),
-                                        fieldWithPath("role").description("권한"),
-                                        fieldWithPath("todoSize").description("할일 개수")
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("content").description("요청에 대한 응답 데이터"),
+                                        fieldWithPath("content.username").description("아이디"),
+                                        fieldWithPath("content.email").description("이메일"),
+                                        fieldWithPath("content.nickname").description("닉네임"),
+                                        fieldWithPath("content.todoSize").description("할일 개수"),
+                                        fieldWithPath("content.role").description("사용자 권한")
                                 )
                         )
                 )
                 .andExpect(status().isOk())
+        ;
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void Retrieve_Account_404() throws Exception {
+        // given
+        given(accountService.findAccount_ADMIN(anyString())).willThrow(new NotFoundException(ErrorCode.NOT_FOUND_ACCOUNT));
+
+        // when & then
+        mockMvc.perform(get("/admin/accounts/{username}", "james1234")
+                        .header("Authorization", TOKEN)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andDo(document("{class-name}/{method-name}",
+                                requestHeaders(
+                                        headerWithName("Authorization").description("JWT 토큰 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("error.code").description("에러 코드"),
+                                        fieldWithPath("error.message").description("에러 메세지")
+                                )
+                        )
+                )
+                .andExpect(status().isNotFound())
         ;
     }
 
@@ -156,7 +213,7 @@ public class AdminAccountApiDocsTest extends RestDocumentSupport {
                                         headerWithName("Authorization").description("JWT 토큰 값")
                                 ),
                                 responseFields(
-                                        fieldWithPath("id").description("삭제된 사용자 idx")
+                                        fieldWithPath("success").description("성공 여부 (true/false)")
                                 )
                         )
                 )

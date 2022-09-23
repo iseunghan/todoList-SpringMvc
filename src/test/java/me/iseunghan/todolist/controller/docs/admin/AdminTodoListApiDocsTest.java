@@ -1,8 +1,12 @@
 package me.iseunghan.todolist.controller.docs.admin;
 
+import me.iseunghan.todolist.common.LoginUserArgumentResolver;
 import me.iseunghan.todolist.config.SecurityConfig;
 import me.iseunghan.todolist.controller.admin.AdminTodoListApiController;
 import me.iseunghan.todolist.controller.docs.RestDocumentSupport;
+import me.iseunghan.todolist.exception.AccessDeniedException;
+import me.iseunghan.todolist.exception.model.ErrorCode;
+import me.iseunghan.todolist.jwt.JwtTokenUtil;
 import me.iseunghan.todolist.model.TodoStatus;
 import me.iseunghan.todolist.model.dto.PageDto;
 import me.iseunghan.todolist.model.dto.RetrieveTodoItemResponse;
@@ -22,9 +26,9 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,12 +37,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
                         classes = SecurityConfig.class
-                )}
+                )
+        }
 )
 public class AdminTodoListApiDocsTest extends RestDocumentSupport {
 
     @MockBean
     private TodoService todoService;
+    @MockBean
+    private JwtTokenUtil jwtTokenUtil;
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
@@ -77,20 +84,45 @@ public class AdminTodoListApiDocsTest extends RestDocumentSupport {
                                         headerWithName("Authorization").description("JWT 토큰 값")
                                 ),
                                 responseFields(
-                                        fieldWithPath("todoList[0].id").description("할일의 아이디 값"),
-                                        fieldWithPath("todoList[0].title").description("할일 내용"),
-                                        fieldWithPath("todoList[0].createdAt").description("생성 날짜"),
-                                        fieldWithPath("todoList[0].updatedAt").description("수정 날짜"),
-                                        fieldWithPath("todoList[0].username").description("사용자 아이디"),
-                                        fieldWithPath("todoList[0].status").description("할일의 상태 값"),
-                                        fieldWithPath("pageable.number").description("현재 페이지 번호"),
-                                        fieldWithPath("pageable.totalElements").description("전체 할일 개수"),
-                                        fieldWithPath("pageable.totalPages").description("전체 페이지 수"),
-                                        fieldWithPath("pageable.first").description("현재 첫번째 페이지 여부"),
-                                        fieldWithPath("pageable.last").description("현재 마지막 페이지 여부")
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("content.todoList[0].id").description("할일의 아이디 값"),
+                                        fieldWithPath("content.todoList[0].title").description("할일 내용"),
+                                        fieldWithPath("content.todoList[0].createdAt").description("생성 날짜"),
+                                        fieldWithPath("content.todoList[0].updatedAt").description("수정 날짜"),
+                                        fieldWithPath("content.todoList[0].username").description("사용자 아이디"),
+                                        fieldWithPath("content.todoList[0].status").description("할일의 상태 값"),
+                                        fieldWithPath("content.pageable.number").description("현재 페이지 번호"),
+                                        fieldWithPath("content.pageable.totalElements").description("전체 할일 개수"),
+                                        fieldWithPath("content.pageable.totalPages").description("전체 페이지 수"),
+                                        fieldWithPath("content.pageable.first").description("현재 첫번째 페이지 여부"),
+                                        fieldWithPath("content.pageable.last").description("현재 마지막 페이지 여부")
                                 )
                         )
                 )
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void Retrieve_All_TodoList_403() throws Exception {
+        // given
+        given(todoService.findAll(any())).willThrow(new AccessDeniedException(ErrorCode.ACCESS_DENIED));
+
+        // when
+        mockMvc.perform(get("/admin/accounts/todolist")
+                        .header("Authorization", TOKEN))
+                .andDo(print())
+                .andDo(document("{class-name}/{method-name}",
+                                requestHeaders(
+                                        headerWithName("Authorization").description("JWT 토큰 값")
+                                ),
+                                responseFields(
+                                        fieldWithPath("success").description("성공 여부 (true/false)"),
+                                        fieldWithPath("error.code").description("에러 코드"),
+                                        fieldWithPath("error.message").description("에러 메세지")
+                                )
+                        )
+                )
+                .andExpect(status().isForbidden());
     }
 }

@@ -14,6 +14,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(RestDocumentationExtension.class)
@@ -30,7 +31,11 @@ public class RestDocumentSupport {
     void setup(WebApplicationContext context, RestDocumentationContextProvider restDocument) {
         // restDocs setup
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(documentationConfiguration(restDocument))
+                .apply(documentationConfiguration(restDocument)
+                        .operationPreprocessors()
+                        .withRequestDefaults(prettyPrint())
+                        .withResponseDefaults(prettyPrint())
+                )
                 .alwaysDo(print())
                 .alwaysDo(document("{class-name}/{method-name}",
                         preprocessRequest(prettyPrint()),
