@@ -22,7 +22,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
-@Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
 
@@ -39,16 +38,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
-    }
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        return new JwtAuthenticationFilter(jwtTokenUtil(), authenticationManagerBean(), new ObjectMapper());
-    }
-
-    @Bean
-    public JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
-        return new JwtAuthorizationFilter(jwtTokenUtil(), authenticationManagerBean());
     }
 
     @Override
@@ -110,8 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
 
                 // JWT Filter
                 .and()
-                    .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                    .addFilterBefore(jwtAuthorizationFilter(), BasicAuthenticationFilter.class)
+                    .addFilterBefore(new JwtAuthorizationFilter(jwtTokenUtil(), authenticationManagerBean()), BasicAuthenticationFilter.class)
         ;
 
     }

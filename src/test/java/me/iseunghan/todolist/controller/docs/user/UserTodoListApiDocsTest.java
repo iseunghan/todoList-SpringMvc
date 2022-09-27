@@ -4,7 +4,6 @@ import me.iseunghan.todolist.controller.docs.RestDocumentSupport;
 import me.iseunghan.todolist.controller.user.UserTodoListApiController;
 import me.iseunghan.todolist.exception.NotFoundException;
 import me.iseunghan.todolist.exception.model.ErrorCode;
-import me.iseunghan.todolist.jwt.JwtAuthenticationFilter;
 import me.iseunghan.todolist.jwt.JwtAuthorizationFilter;
 import me.iseunghan.todolist.jwt.JwtTokenUtil;
 import me.iseunghan.todolist.model.TodoStatus;
@@ -44,8 +43,6 @@ public class UserTodoListApiDocsTest extends RestDocumentSupport {
 
     @MockBean
     private JwtTokenUtil jwtTokenUtil;
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
     @MockBean
     private JwtAuthorizationFilter jwtAuthorizationFilter;
     @MockBean
