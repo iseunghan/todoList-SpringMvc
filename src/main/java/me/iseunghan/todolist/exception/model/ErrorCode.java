@@ -20,7 +20,8 @@ public enum ErrorCode {
     ACCESS_DENIED("S002", "AccessDenied Error"),
 
     // BadRequest
-    FIELD_ERROR("F001", "Check Request Argument")
+    FIELD_ERROR("F001", "Check Request Argument"),
+    UN_SUPPORTED_MEDIA_TYPE("F002", "Only Accept application/json")
     ;
 
     private final String code;
