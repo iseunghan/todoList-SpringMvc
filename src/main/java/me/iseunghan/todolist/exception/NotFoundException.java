@@ -2,14 +2,12 @@ package me.iseunghan.todolist.exception;
 
 import lombok.Getter;
 import me.iseunghan.todolist.exception.model.ErrorCode;
+import org.springframework.http.HttpStatus;
 
 @Getter
-public class NotFoundException extends RuntimeException {
+public class NotFoundException extends GeneralException {
 
-    private final Long id;
-
-    public NotFoundException(Long id) {
-        super(ErrorCode.NOT_FOUND_TODO.message);
-        this.id = id;
+    public NotFoundException(ErrorCode errorCode) {
+        super(HttpStatus.NOT_FOUND, errorCode);
     }
 }

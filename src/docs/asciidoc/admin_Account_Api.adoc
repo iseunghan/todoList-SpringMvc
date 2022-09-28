@@ -1,0 +1,54 @@
+ifndef::snippets[]
+:snippets: ../../build/generated-snippets
+endif::[]
+
+== ADMIN Account API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+=== 모든 회원 조회
+==== Request
+include::{snippets}/admin-account-api-docs-test/retrieve_-account-list/http-request.adoc[]
+include::{snippets}/admin-account-api-docs-test/retrieve_-account-list/request-headers.adoc[]
+
+==== 200 OK
+include::{snippets}/admin-account-api-docs-test/retrieve_-account-list/http-response.adoc[]
+include::{snippets}/admin-account-api-docs-test/retrieve_-account-list/response-fields.adoc[]
+
+==== 403 Forbidden
+include::{snippets}/admin-account-api-docs-test/retrieve_-account-list_403/http-response.adoc[]
+include::{snippets}/admin-account-api-docs-test/retrieve_-account-list_403/response-fields.adoc[]
+
+
+
+=== 하나의 회원 조회
+==== Request
+include::{snippets}/admin-account-api-docs-test/retrieve_-account/http-request.adoc[]
+include::{snippets}/admin-account-api-docs-test/retrieve_-account/request-headers.adoc[]
+
+==== 200 OK
+include::{snippets}/admin-account-api-docs-test/retrieve_-account/http-response.adoc[]
+include::{snippets}/admin-account-api-docs-test/retrieve_-account/response-fields.adoc[]
+
+==== 404 NotFound
+include::{snippets}/admin-account-api-docs-test/retrieve_-account_404/http-response.adoc[]
+include::{snippets}/admin-account-api-docs-test/retrieve_-account_404/response-fields.adoc[]
+
+
+
+=== 회원 삭제
+==== Request
+include::{snippets}/admin-account-api-docs-test/delete_-account/http-request.adoc[]
+include::{snippets}/admin-account-api-docs-test/delete_-account/request-headers.adoc[]
+
+==== 200 OK
+include::{snippets}/admin-account-api-docs-test/delete_-account/http-response.adoc[]
+include::{snippets}/admin-account-api-docs-test/delete_-account/response-fields.adoc[]
+
+==== 404 NotFound
+include::{snippets}/admin-account-api-docs-test/retrieve_-account_404/http-response.adoc[]
+include::{snippets}/admin-account-api-docs-test/retrieve_-account_404/response-fields.adoc[]

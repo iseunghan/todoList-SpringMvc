@@ -1,0 +1,93 @@
+ifndef::snippets[]
+:snippets: ../../build/generated-snippets
+endif::[]
+
+== User TodoList API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+=== 할일 생성
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/path-parameters.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/request-fields.adoc[]
+
+==== 200 OK
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo/response-fields.adoc[]
+
+==== 400 BadRequest
+include::{snippets}/user-todo-list-api-docs-test/create_-todo_400/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/create_-todo_400/response-fields.adoc[]
+
+
+
+=== 나의 모든 할일 조회
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/path-parameters.adoc[]
+
+==== 200 OK
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo-list/response-fields.adoc[]
+
+
+
+=== 하나의 할일 조회
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/path-parameters.adoc[]
+
+==== 200 OK
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo/response-fields.adoc[]
+
+==== 403 Forbidden
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_403/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_403/response-fields.adoc[]
+
+==== 404 NotFound
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_404/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_404/response-fields.adoc[]
+
+
+=== 할일 수정
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/update-todo/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/update-todo/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/update-todo/path-parameters.adoc[]
+
+==== 200 OK
+include::{snippets}/user-todo-list-api-docs-test/update-todo/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/update-todo/response-fields.adoc[]
+
+==== 403 Forbidden
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_403/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_403/response-fields.adoc[]
+
+
+
+=== 할일 삭제
+==== Request
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/http-request.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/request-headers.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/path-parameters.adoc[]
+
+==== 200 OK
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/delete-todo/response-fields.adoc[]
+
+==== 403 Forbidden
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_403/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_403/response-fields.adoc[]
+
+==== 404 NotFound
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_404/http-response.adoc[]
+include::{snippets}/user-todo-list-api-docs-test/retrieve_-todo_404/response-fields.adoc[]

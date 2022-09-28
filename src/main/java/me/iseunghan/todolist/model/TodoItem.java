@@ -3,7 +3,6 @@ package me.iseunghan.todolist.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 import static lombok.Builder.Default;
 
@@ -14,7 +13,8 @@ import static lombok.Builder.Default;
 @NoArgsConstructor
 @Entity
 @Table(name = "TODO_ITEM")
-public class TodoItem {
+@ToString(exclude = "account")
+public class TodoItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,11 +28,12 @@ public class TodoItem {
     @Default
     private TodoStatus status = TodoStatus.NEVER;
 
-    @Column(name = "created_at")
-    @Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ACCOUNT_ID")
+    private Account account;
 
-    @Column(name = "updated_at")
-    @Default
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    public void addAccount(Account account) {
+        account.addTodo(this);
+        this.account = account;
+    }
 }

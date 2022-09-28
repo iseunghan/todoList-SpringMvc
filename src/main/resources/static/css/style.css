@@ -170,12 +170,12 @@ ul {
 /* checked 클래스를 부여하게 되면, 할일이 완료 됐음을 시각적으로 표현해줍니다. */
 .checked {
     background: #BDBDBD;
-    color: #F2F2F2;
+    color: slategrey;
     text-decoration: line-through;  /* 취소 선 */
 }
 
 /* Style the list items */
-ul li {
+/*ul li {
     cursor: pointer;
     position: relative;
     width: 510px;
@@ -186,12 +186,12 @@ ul li {
     transition: 0.2s;
     box-shadow: 0px 0px 0px 0.2px rgba(0, 0, 0, 0.9);
 
-    /* make the list items unselectable */
+    !* make the list items unselectable *!
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-}
+}*/
 
 /* 마우스를 올려놓으면 배경이 검게 변하게 됩니다. */
 ul li:hover {
@@ -202,11 +202,11 @@ ul li:hover {
 ul li.checked::before {
     content: '';
     position: absolute;
-    border-color: #F2F2F2;
+    /*border-color: #F2F2F2;*/
     border-style: solid;
     border-width: 0 2px 2px 0;
-    top: 10px;
-    left: 16px;
+    top: 15px;
+    left: 8px;
     transform: rotate(45deg);
     height: 15px;
     width: 7px;
@@ -224,4 +224,8 @@ ul li.checked::before {
 .delete:hover {
     background-color: #f44336;
     color: white;
+}
+
+.list-group-item:hover {
+    opacity: .7;
 }
