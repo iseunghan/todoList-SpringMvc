@@ -2,8 +2,10 @@ package me.iseunghan.todolist.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.iseunghan.todolist.jwt.JwtTokenUtil;
+import me.iseunghan.todolist.model.dto.CreateAccountRequest;
 import me.iseunghan.todolist.model.dto.CreateTodoItemRequest;
 import me.iseunghan.todolist.model.dto.TodoItemDto;
+import me.iseunghan.todolist.service.AccountService;
 import me.iseunghan.todolist.service.TodoService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -33,29 +35,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserTodoListApiControllerTest {
 
     protected static final String TOKEN = "Bearer 12345";
-    private static final String USERNAME = "user";
+    private static final String USERNAME = "testuser";
+    List<TodoItemDto> testTodoDtos;
 
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     @Autowired
     private TodoService todoService;
-
+    @Autowired
+    private AccountService accountService;
     @MockBean
     private JwtTokenUtil jwtTokenUtil;
 
-    List<TodoItemDto> testTodoDtos;
-
     @BeforeAll
-    void setup() {
-        // given
+    void setUp() {
+        accountService.addAccount(CreateAccountRequest.builder()
+                .username(USERNAME)
+                .email("teest@email.com")
+                .password("1234")
+                .nickname("nick")
+                .build());
         testTodoDtos = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
-            TodoItemDto todo = todoService.addTodo("user", CreateTodoItemRequest.builder()
+            TodoItemDto todo = todoService.addTodo(USERNAME, CreateTodoItemRequest.builder()
                     .title("test" + i)
                     .build());
 

@@ -1,6 +1,5 @@
 package me.iseunghan.todolist.controller.docs.admin;
 
-import me.iseunghan.todolist.common.LoginUserArgumentResolver;
 import me.iseunghan.todolist.config.SecurityConfig;
 import me.iseunghan.todolist.controller.admin.AdminTodoListApiController;
 import me.iseunghan.todolist.controller.docs.RestDocumentSupport;

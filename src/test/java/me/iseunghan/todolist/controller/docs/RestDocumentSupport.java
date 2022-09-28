@@ -13,8 +13,6 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(RestDocumentationExtension.class)

@@ -1,8 +1,5 @@
 package me.iseunghan.todolist.controller.docs.user;
 
-import me.iseunghan.todolist.common.LoginUserArgumentResolver;
-import me.iseunghan.todolist.config.SecurityConfig;
-import me.iseunghan.todolist.controller.admin.AdminTodoListApiController;
 import me.iseunghan.todolist.controller.docs.RestDocumentSupport;
 import me.iseunghan.todolist.controller.user.UserAccountApiController;
 import me.iseunghan.todolist.exception.NotFoundException;
@@ -13,8 +10,6 @@ import me.iseunghan.todolist.service.AccountService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 

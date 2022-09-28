@@ -2,10 +2,8 @@ package me.iseunghan.todolist.controller;
 
 import lombok.RequiredArgsConstructor;
 import me.iseunghan.todolist.common.ApiResponse;
-import me.iseunghan.todolist.common.AuthUtils;
 import me.iseunghan.todolist.jwt.JwtTokenUtil;
 import me.iseunghan.todolist.model.dto.SignInDto;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +18,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import static me.iseunghan.todolist.common.AuthUtils.*;
+import static me.iseunghan.todolist.common.AuthUtils.AUTH_HEADER;
+import static me.iseunghan.todolist.common.AuthUtils.AUTH_TYPE;
 
 @RequiredArgsConstructor
 @RestController

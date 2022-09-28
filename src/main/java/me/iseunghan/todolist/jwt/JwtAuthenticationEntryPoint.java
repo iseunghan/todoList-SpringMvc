@@ -1,6 +1,5 @@
 package me.iseunghan.todolist.jwt;
 
-import lombok.extern.slf4j.Slf4j;
 import me.iseunghan.todolist.exception.model.ErrorCode;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

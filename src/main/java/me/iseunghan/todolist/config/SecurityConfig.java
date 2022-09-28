@@ -1,11 +1,12 @@
 package me.iseunghan.todolist.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import me.iseunghan.todolist.common.LoginUserArgumentResolver;
-import me.iseunghan.todolist.jwt.*;
+import me.iseunghan.todolist.jwt.JwtAccessDeniedHandler;
+import me.iseunghan.todolist.jwt.JwtAuthenticationEntryPoint;
+import me.iseunghan.todolist.jwt.JwtAuthorizationFilter;
+import me.iseunghan.todolist.jwt.JwtTokenUtil;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,7 +16,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -47,14 +47,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
-
+    public void configure(WebSecurity web) {
         web.ignoring()
-                // enable h2-console
-                .requestMatchers(PathRequest.toH2Console())
-
-                // ignoring [/js/**, /css/**, /images/**..]
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+                .requestMatchers(
+                        PathRequest.toH2Console(),
+                        PathRequest.toStaticResources().atCommonLocations()
+                )
+                .antMatchers("/docs/**")
+        ;
     }
 
     @Override
@@ -76,6 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 // logout
                     .logout()
                     .logoutUrl("/logout")
+                    .permitAll()
                     .addLogoutHandler(new CustomLogoutHandler())
                     .logoutSuccessUrl("/")
                     .clearAuthentication(true)
@@ -83,9 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 .and()
 
                 .authorizeRequests()
-                    .antMatchers("/", "/error")
-                        .permitAll()
-                    .antMatchers("/login", "/logout", "/signup")
+                    .antMatchers("/", "/error", "/login", "/signup")
                         .permitAll()
                     .antMatchers(HttpMethod.POST,"/user/accounts")
                         .anonymous()
